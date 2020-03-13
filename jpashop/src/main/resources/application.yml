@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/jpashop
+    username: minkj1992
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 애플리케이션 시작 시 하이버네이트가 스키마를 자동 생성하고 종료 시 삭제
+    properties:
+      hibernate:
+        format_sql: true # SQL문을 보기 좋게 출력해 준다.
+
+logging.level:
+ org.hibernate.SQL: debug # logger를 통해 하이버네이트 실행 SQL을 남긴다. (SL4j)
