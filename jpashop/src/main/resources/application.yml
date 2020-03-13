@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/jpashop
+    url: jdbc:h2:tcp://localhost/~/jpashop  # h2와 맞춰준다.
     username: minkj1992
     password:
     driver-class-name: org.h2.Driver

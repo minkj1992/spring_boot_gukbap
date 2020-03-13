@@ -16,5 +16,15 @@
         - `ddl-auto : create`시, 테이블 Drop할때 에러가 뜨기 떄문에, 안정화된 버전을 사용한다.
     - `chmod 755 h2.sh`
         - ubuntu 실행 권한 부여
+    - embedded로 `.mv`파일 먼저 생성후, spring 돌릴때는 tcp 통신
 - `application.yml`
     - `.properties`삭제
+
+- `JPA & DB` 실행 확인
+    - Entity 생성
+        - `Member`
+            - `org.springframework.data.annotation.Id`는 non-relational DB
+            - `javax.persistence.Id`는 relational data
+
+    - Repository 생성
+        -
