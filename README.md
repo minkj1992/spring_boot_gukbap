@@ -25,6 +25,7 @@
         - `Member`
             - `org.springframework.data.annotation.Id`는 non-relational DB
             - `javax.persistence.Id`는 relational data
-
     - Repository 생성
-        -
+        - EntityManager `@PersistenceContext`
+    - test
+        - JAVA object가 JPA를 통해 EntityManager를 거쳐 생성해준 Repository를 거쳐 Getter를 통해 Id를 return한 값과, 제일 처음 시도했던 java object의 getID값과의 차이가 있는지 여부를 확인하는 테스트
