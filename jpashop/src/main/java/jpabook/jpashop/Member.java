@@ -20,7 +20,7 @@ public class Member {
     @Embedded
     private Address address;    //임베디드 타입
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member") //mappdedBy는 연관관계 '을'이 사용
     private List<Order> orders = new ArrayList<>(); // mappdedBy에 들어가는 인자는, 연관관계주인이 가지고 있는 변수명 (fk가 된다 DB상)
 
 }
