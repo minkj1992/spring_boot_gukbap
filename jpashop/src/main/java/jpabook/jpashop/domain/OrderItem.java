@@ -1,5 +1,6 @@
-package jpabook.jpashop;
+package jpabook.jpashop.domain;
 
+import jpabook.jpashop.domain.item.Item;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +16,7 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "item_id")
+    @JoinColumn(name = "item_id")   //Item Entity의 id값
     private Item item;
 
 
