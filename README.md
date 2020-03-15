@@ -85,6 +85,7 @@
         - JAVA object가 JPA를 통해 EntityManager를 거쳐 생성해준 Repository를 거쳐 Getter를 통해 Id를 return한 값과, 제일 처음 시도했던 java object의 getID값과의 차이가 있는지 여부를 확인하는 테스트
 
 #### 2. Domain 개발
+> Entity Constructor는 Protected with Lombok Annotation
 1. Member Entity 생성
     - 회원
 2. Order ENtity 생성
@@ -104,6 +105,31 @@
 
 **컬렉션은 필드에서 초기화 하자.**
 
-#### 3. Repository 개발
+#### 3. Repository / Service 개발
+1. MemberRepository 생성
+    - @Repository: SQL_Exception 투명하게 에러 핸들링 가능
+    - @PersistenceContext
+        - JPA로부터 EntityManager를 DI받을 수 있다. (어떤 DB 의존성가질 것인가 등의 정보를 자동으로 처리, 생명주기)
+        - Repository는 EntityManager를 Autowired시켜준다 (@PersistenceContext)
+    - em.createQuery는 javax.persistence.Query (JPQL)
+
+    - 참고로 Repository의 EntityManager도 주입 가능
+    ```java
+    @PersistenceContext //JPA로부터 EntityManager를DI받을 수 있다. (어떤 DB 의존성가질 것인가 등의 정보를자동으로 처리, 생명주기)
+    private EntityManager em;
+    ```
+    ```java
+    @Repository
+    @RequiredArgsConstructor
+    public class MemberRepository {
+        private final EntityManager em;
+        ...
+    }
+    ```
+2. MemberService 생성
+    - Entity값 Validation Code ( `validateDuplicateMember()` )
+    - Repository에 CRUD 요청위임 method()들
+    - `@Transactional` 처리
+    - 서비스는 트랜잭션의 단위이다.
 
 
