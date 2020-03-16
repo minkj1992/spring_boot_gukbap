@@ -185,5 +185,27 @@
 - findAll()
 
 
+7. Order Entity
+- 비즈니스 로직
+    - 주문 취소
+        - Order가 가진 주문 상태가 배송이 아니라면, 모든 OrderItem들을 Cancel 시켜준다.
+        - `orderItem.cancel();` -> `deligate`
+- 복잡한 생성 로직
+    - setter는 내부에서만 사용하게 하기 위해 생성 메서드를 둔다.
+    - 좋은 방법은 아니지만, BaseBean을 상속받는 것보다 비즈니스 로직 먼저 생성하는 것이 옳다고 생각한다.
+- 조회 로직
+    - **`int totalPrice` 필드를 두고 add, cancel 때마다 상태를 변경해준다.**
+    - 주문을 한다면 : item의 잔고는 줄여주고, Order의 가격은 늘려주고
+    - 주문을 취소한다면: item 잔고는 늘려주고, Order의 가격은 줄여주고
+
+8. OrderItem Entity
+- 주문취소
+    - 취소될 때 Order에게 update되어야할 가격을 전달해준다.
+- 복잡한 생성자
+
+
+
+
+
 
 

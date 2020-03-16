@@ -24,7 +24,7 @@ public class Order {
     @JoinColumn(name = "member_id") //FK 부여, 연관관계의 주인
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -32,6 +32,8 @@ public class Order {
     private Delivery delivery;
 
     private LocalDateTime orderDate;
+
+    private int totalPrice = 0;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status; //[ORDER, CANCEL]
@@ -45,11 +47,52 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
+        incTotalPrice(orderItem.getOrderPrice(),orderItem.getCount());
     }
+
 
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         delivery.setOrder(this);
     }
 
+    public void incTotalPrice(int price, int quantity) {
+        totalPrice += price*quantity;    // totalPrice add
+    }
+
+    public void decTotalPrice(int price) {
+        totalPrice -= price;    // totalPrice dec
+    }
+
+    //=생성 메서드=//
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
+
+    //=비즈니스 로직=//
+    /** 주문 취소*/
+    public void cancel() {
+        if (delivery.getStatus() == DeliveryStatus.COMP) {
+            throw new IllegalStateException("이미 배송완료된 상품은 취소가 불가능 합니다.");
+        }
+
+        this.setStatus(OrderStatus.CANCEL);
+        // 상품들 취소
+        for (OrderItem orderItem : orderItems) {
+            decTotalPrice(orderItem.cancel());
+        }
+    }
+
+
+    //=조회 로직=//
+    /** 전체 주문 가격 조회*/
+    // getter totalPrice를 통해 구현
 }
