@@ -11,18 +11,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRepository {
 
-    private EntityManager em;
+    private final EntityManager em;
 
-    //    public void save(Item item) {
-    //        em.persist(item);
-    //        // update용 merge는 사용하지 않는다.
-    //    }
     public void save(Item item) {
-        if (item.getId() == null) {
-            em.persist(item);
-        } else {
-            em.merge(item);
-        }
+        em.persist(item);
+        // update용 merge는 사용하지 않는다.
     }
 
 

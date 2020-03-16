@@ -220,11 +220,14 @@
 11. OrderServiceTest
 - `Caused by: org.hibernate.service.spi.ServiceException: Unable to create requested service [org.hibernate.engine.jdbc.env.spi.JdbcEnvironment]`
     - h2 키니까 동작한다, 그런데 test는 인메모리 DB아닌가?
+    - in-memory여도 termianl에서 ` jdbc:h2:mem:testdb`로 켜주어야 한다. h2 데이터 베이스를
 
 - `java.lang.NullPointerException`
     - toatal Price 관련해서 dependency들을 넣어주니, Entity 생성에서 꼬인 것 같다.
-    - 내일 부터는 여기를 처리해준다.
-    
+    - ItemService에서 Repository에 final을 빼먹었다.
+- Item에서 removeStockQuantity에서 예외처리 이후 update 코드를 빼먹었었다.
+
+
 
 
 

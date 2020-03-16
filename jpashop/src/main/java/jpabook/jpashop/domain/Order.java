@@ -33,8 +33,6 @@ public class Order {
 
     private LocalDateTime orderDate;
 
-    private int totalPrice = 0;
-
     @Enumerated(EnumType.STRING)
     private OrderStatus status; //[ORDER, CANCEL]
 
@@ -47,21 +45,12 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
-        incTotalPrice(orderItem.getOrderPrice(),orderItem.getCount());
     }
 
 
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         delivery.setOrder(this);
-    }
-
-    public void incTotalPrice(int price, int quantity) {
-        totalPrice += price*quantity;    // totalPrice add
-    }
-
-    public void decTotalPrice(int price) {
-        totalPrice -= price;    // totalPrice dec
     }
 
     //=생성 메서드=//
@@ -87,12 +76,22 @@ public class Order {
         this.setStatus(OrderStatus.CANCEL);
         // 상품들 취소
         for (OrderItem orderItem : orderItems) {
-            decTotalPrice(orderItem.cancel());
+            orderItem.cancel();
         }
     }
 
 
     //=조회 로직=//
-    /** 전체 주문 가격 조회*/
-    // getter totalPrice를 통해 구현
+
+    /**
+     * 전체 주문 가격 조회
+     */
+    public int getTotalPrice() {
+        int totalPrice = 0;
+        for (OrderItem orderItem : orderItems) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+
+        return totalPrice;
+    }
 }
