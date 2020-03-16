@@ -227,8 +227,11 @@
     - ItemService에서 Repository에 final을 빼먹었다.
 - Item에서 removeStockQuantity에서 예외처리 이후 update 코드를 빼먹었었다.
 
+12. findAllByCriteria(OrderSearch orderSearch) & OrderSearch
+- Getter / Setter를 가진 OrderSearch DTO를 생성해주고, 여기에 동적 쿼리에 담길 특성값들을 Set해준다. 이후 Criteria에 값을 넣어주어 Search해준다.
 
 
+#### 4. 웹 계층 개발
 
 
 
