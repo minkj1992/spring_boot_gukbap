@@ -13,10 +13,18 @@ public class ItemRepository {
 
     private EntityManager em;
 
+    //    public void save(Item item) {
+    //        em.persist(item);
+    //        // update용 merge는 사용하지 않는다.
+    //    }
     public void save(Item item) {
-        em.persist(item);
-        // update용 merge는 사용하지 않는다.
+        if (item.getId() == null) {
+            em.persist(item);
+        } else {
+            em.merge(item);
+        }
     }
+
 
     public Item findOne(Long id) {
         return em.find(Item.class, id);

@@ -217,6 +217,13 @@
         - 필요 엔티티조회 -> 배송정보 생성 -> 주문 상품 생성 -> 주문 생성 -> 주문 저장 (Order에 연관관계 mapping Cascade를 진행해주었다.)
             - 이로 인하여 Order, Delivery, Address들이 Entity로 관리된다.
 
+11. OrderServiceTest
+- `Caused by: org.hibernate.service.spi.ServiceException: Unable to create requested service [org.hibernate.engine.jdbc.env.spi.JdbcEnvironment]`
+    - h2 키니까 동작한다, 그런데 test는 인메모리 DB아닌가?
+
+- `java.lang.NullPointerException`
+    - toatal Price 관련해서 dependency들을 넣어주니, Entity 생성에서 꼬인 것 같다.
+    - 내일 부터는 여기를 처리해준다.
     
 
 
