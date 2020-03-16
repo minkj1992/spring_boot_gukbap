@@ -204,6 +204,10 @@
 - 복잡한 생성자
 
 
+9. OrdeRepository
+- Order의 persist를 deligate 시키는 클래스
+
+10.
 
 
 
