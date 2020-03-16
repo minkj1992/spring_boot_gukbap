@@ -164,6 +164,13 @@
     - @TODO: **Entity에서 @Setter를 없애줄 수 있는 방법은 무엇일까?**
         - builder pattern
 
+4. Item Entity
+- Business Logic ( add , remove )
+- Exception 생성
+    - `NotEnoughStockException`
+
+
+
 
 
 
