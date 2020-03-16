@@ -176,6 +176,13 @@
 - findOne()
 - findAll()
 
+6. Item Service
+- Service는 SRP 원칙에 의해 Repository에게 위임한다. Service의 기능은 Transactional과 validate이고 validate 코드는 Entity에게 위임한다.
+
+- Save()
+    - 트랜잭션 처리
+- findOne()
+- findAll()
 
 
 
