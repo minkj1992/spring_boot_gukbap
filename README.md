@@ -169,6 +169,12 @@
 - Exception 생성
     - `NotEnoughStockException`
 
+5. Item Repository
+- Save()
+    - persist()
+    - @TODO: update용 코드를 위한 `.merge()`는 사용하지 않는다, 추후 준영속성 엔티티는 영속성을 부여해주어 처리한다.
+- findOne()
+- findAll()
 
 
 
