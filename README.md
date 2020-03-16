@@ -160,6 +160,9 @@
         - `java.lang.Exception: Test class should have exactly one public zero-argument constructor`, 테스트 환경에서는 `@RequiredArgsConstructor`를 통한 injection이 통하지 않는다. 즉 @Autowired 써주어야 한다.
     
     - 중복회원 예외
+    
+    - @TODO: **Entity에서 @Setter를 없애줄 수 있는 방법은 무엇일까?**
+        - builder pattern
 
 
 

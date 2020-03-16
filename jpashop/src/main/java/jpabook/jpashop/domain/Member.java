@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)    //테스트를 위해서 열어둔다.
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)    //@TODO: 테스트를 위해서 열어둔다.
 public class Member {
 
     @Id @GeneratedValue
