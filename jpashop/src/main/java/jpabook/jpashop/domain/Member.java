@@ -1,9 +1,6 @@
 package jpabook.jpashop.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)    //테스트를 위해서 열어둔다.
 public class Member {
 
     @Id @GeneratedValue

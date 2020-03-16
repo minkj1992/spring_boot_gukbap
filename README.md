@@ -129,7 +129,38 @@
 2. MemberService 생성
     - Entity값 Validation Code ( `validateDuplicateMember()` )
     - Repository에 CRUD 요청위임 method()들
+        - SRP (Single Resposibility Principle) 하나의 class는 하나의 역할만 한다.
+            - **Service는 다양한 Repository들을 모아서 logic들을 처리해주어야 한다. 그러므로 여러 Repository에게 위임한다.**
     - `@Transactional` 처리
+        - readOnly를 통해서 최적화 시켜주고 Write가 필요한 작업만 Transactional 붙여준다.
     - 서비스는 트랜잭션의 단위이다.
+
+3. MemberServiceTest()
+- 테스트
+    - 회원가입
+        - 문제가 `@NoArgsConstructor(access = AccessLevel.PROTECTED)`로 `Member`를 보호해주었는데, test하기 위해서는 풀어주어야 하나? @Builder를 사용하면 되지 않을까? 
+        - Member Entity 근본부터 잘못되었다. 근본은 Entity의 Setter는 닫아두고 Builder Pattern을 사용해서 생성자를 만들어준다. (ID를 제외한)
+        - 이후 DTO를 사용하여 UPDATE와 관련된 Method들을 처리해준다.  -> 아니면 setter 열어두고 repository를 통해서 WAS단에서 수정된 데이터들을 proxy객체를 통해서 수정해준다.
+        - **절대로 테이블과 매핑되는 Entity 클래스를 Request / Response 클래스로 사용해선 안됨.**
+
+        - update 코드에 대한 Stack Overflow 글
+            - 
+            ```java
+                Customer customerToUpdate = customerRepository.getOne(id);
+                customerToUpdate.setName(customerDto.getName);
+                customerRepository.save(customerToUpdate);
+            ```
+                - SQL상에서도 Update Query만 생성된다.
+    
+        - `Caused by: org.hibernate.AnnotationException: Illegal attempt to map a non collection as a @OneToMany, @ManyToMany or @CollectionOfElements: jpabook.jpashop.domain.Category.parent` 에러 발생
+            - `@ManyToOne(fetch = FetchType.LAZY)`로 Parent를 바꿔주었다.
+        - ` Invocation of init method failed; nested exception is org.hibernate.AnnotationException: No identifier specified for entity: jpabook.jpashop.domain.item.Movie`
+            - `public class Movie extends Item` extend를 빼먹었었다.
+
+        - `java.lang.Exception: Test class should have exactly one public zero-argument constructor`, 테스트 환경에서는 `@RequiredArgsConstructor`를 통한 injection이 통하지 않는다. 즉 @Autowired 써주어야 한다.
+    
+    - 중복회원 예외
+
+
 
 

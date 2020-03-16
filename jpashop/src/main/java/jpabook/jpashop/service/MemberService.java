@@ -19,7 +19,6 @@ public class MemberService {
     //회원가입
     @Transactional
     public Long join(Member member) {
-
         validateDuplicateMember(member);
         memberRepository.save(member);
         return member.getId();      //Create시 생성한 Entity의 식별자를 return
@@ -41,8 +40,6 @@ public class MemberService {
     public List<Member> findMembers() {
         return memberRepository.findAll();
     }
-
-
 
 
 }

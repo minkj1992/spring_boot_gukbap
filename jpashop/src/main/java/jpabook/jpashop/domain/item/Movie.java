@@ -14,7 +14,7 @@ import javax.persistence.Entity;
 @DiscriminatorValue("M")
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Movie {
+public class Movie extends Item {
 
     private String director;
     private String actor;
