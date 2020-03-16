@@ -207,7 +207,17 @@
 9. OrdeRepository
 - Order의 persist를 deligate 시키는 클래스
 
-10.
+10. OrderService
+- 모든 Entity 조회는 service를 통해서 진행한다.
+- 단 해당 엔티티의 Repository만 Repo를 통해서 접근한다.
+- 기능
+    - 주문
+        - @TODO: **Delivery Entity를 Protected로 생성하니 Service단에서 생성하지 못한다. 평소에는 DTO를 통해서 생성하는 것이 옳은가?** -> 우선은 protected 열어주었다.
+
+        - 필요 엔티티조회 -> 배송정보 생성 -> 주문 상품 생성 -> 주문 생성 -> 주문 저장 (Order에 연관관계 mapping Cascade를 진행해주었다.)
+            - 이로 인하여 Order, Delivery, Address들이 Entity로 관리된다.
+
+    
 
 
 
