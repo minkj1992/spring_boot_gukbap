@@ -294,3 +294,13 @@
 
 9. BookForm (상품 form) 클래스 생성
 - @TODO: `ID`를 폼에서 처리할 때는 오류 체크 안해줘도 될까??
+
+10. ItemController
+- `createForm`
+    - form 객체를 넘겨줌
+- `create`
+    - validate 검증 -> service로 위임
+    - 1차적인 에러 검증, positive, @NOtEmpty
+    - 1차적인 검증이 완료된다면, book 객체를 생성한다. 이때 id값은 자동으로 처리된다.
+    - @TODO: **id 필드가 자동으로 생성된다면 form객체에 id 필드를 생성해줄 필요가있을까??**
+- `items/createItemForm.html`
