@@ -310,3 +310,8 @@
 - `items/createItemForm.html`
     - 계속 `org.thymeleaf.exceptions.TemplateInputException: Error resolving template [items/itemList], template might not exist or might not be accessible by any of the configured Template Resolvers` 에러 발생
         - 모든 시도를 해본 결과 `/items/items/itemList.html`로 디렉토리가 잡혀있었다.
+
+11. ItemController (update item) 
+- Service 코드 update 추가
+- updateItem.html 생성
+- updateForm(), update() 함수 생성
