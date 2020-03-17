@@ -2,13 +2,13 @@
 > SpringBoot + JPA + thymeLeaf + H2 DB
 
 ## **[1] 설계 원칙**
-#### Loosed Coupling & High Chesion)
+### 1. `Loosed Coupling & High Chesion`
 1. 모듈간의 연관관계가 interface로 느슨하게 연결되어야 한다.
 2. 어떤 목적을 위해 연관된 기능들이 모여서 구현되고 지나치게 많은 일을 하지 않는다.
 
 이를 구현하기 위해 DDD(Domain Driven Design)의 몇가지 원칙을 적용하겠다.
 
-#### 역할에 따른 Domain Model
+### 2. `역할에 따른 Domain Model`
 - Domain(Entity, VO)
     - Entity
         - JPA의 @Table과 매핑
@@ -32,7 +32,7 @@
 
 - c.f) DAO/DTO 개념은 `TRANSACTION SCRIPT 패턴` 개념에서 사용하는 용어로 `DDD`개념과는 다른 개념 용어이다.
 
-#### 레이어별 Domain Model
+### 3. `레이어별 Domain Model`
 1. 우선 Context로 분리
 2. 이후 Context안에 존재하는 Layer별 분리한다.
 3. user_interface -> application -> domain -> infrastructure 순서로 layer가 나뉘며, 상위 레이어는 하위 레이어를 의존한다. (user interface는 모든 하위 레이어를 의존 가능하며, 반대로 infrastructure는 다른 레이어를 의존하면 안된다.)
@@ -56,7 +56,7 @@
 
 ## **[2] 개발과정**
 
-#### 1. 세팅
+### 1. 세팅
 
 1. 프로젝트 생성
     - start.spring.io
@@ -88,7 +88,7 @@
     - test
         - JAVA object가 JPA를 통해 EntityManager를 거쳐 생성해준 Repository를 거쳐 Getter를 통해 Id를 return한 값과, 제일 처음 시도했던 java object의 getID값과의 차이가 있는지 여부를 확인하는 테스트
 
-#### 2. Domain 개발
+### 2. Domain 개발
 > Entity Constructor는 Protected with Lombok Annotation
 1. Member Entity 생성
     - 회원
@@ -109,7 +109,7 @@
 
 **컬렉션은 필드에서 초기화 하자.**
 
-#### 3. Repository / Service 개발
+### 3. Repository / Service 개발
 1. MemberRepository 생성
     - @Repository: SQL_Exception 투명하게 에러 핸들링 가능
     - @PersistenceContext
@@ -235,7 +235,7 @@
 - Getter / Setter를 가진 OrderSearch DTO를 생성해주고, 여기에 동적 쿼리에 담길 특성값들을 Set해준다. 이후 Criteria에 값을 넣어주어 Search해준다.
 
 
-#### 4. 웹 계층 개발
+### 4. 웹 계층 개발
 1. home controller 생성
 
 2. segment html
