@@ -281,3 +281,8 @@
 - **실무에서 엔티티는 핵심 비즈니스 로직만 가지고, 화면을 위한 로직은 없어야 한다.**
 - **화면이나 API에 맞는 폼객체나 DTO를 사용하자**
 - 이를 통해 화면이나 API 요구사항을 Form, DTO로 처리하고 엔티티는 순수하게 유지한다.
+
+8. Member List() 생성
+- 회원 리스트를 보여주는 controller 생성
+- `memberList.html` 생성
+    - `<tr th:each="member : ${members}">`
