@@ -90,6 +90,12 @@
 
 ### 2. Domain 개발
 > Entity Constructor는 Protected with Lombok Annotation
+- 도메인 모델과 테이블 설계
+    - ![](./img_src/도메인_모델과_테이블_설계.png)
+- 회원 엔티티 분석
+    - ![](./img_src/회원_엔티티_분석.png)
+- 회원 테이블 분석
+    - ![](./img_src/회원_테이블_분석.png)
 1. Member Entity 생성
     - 회원
 2. Order ENtity 생성
@@ -110,6 +116,8 @@
 **컬렉션은 필드에서 초기화 하자.**
 
 ### 3. Repository / Service 개발
+- 애플리케이션 아키텍처
+    - ![](./img_src/애플리케이션_아키텍처.png)
 1. MemberRepository 생성
     - @Repository: SQL_Exception 투명하게 에러 핸들링 가능
     - @PersistenceContext
