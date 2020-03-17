@@ -249,4 +249,6 @@
 - jumbotron 수정 CSS 추가
 
 
+4. MemberForm 생성
+- `@NotEmpty(message = "회원 이름은 필수입니다")`
 
