@@ -250,5 +250,34 @@
 
 
 4. MemberForm 생성
+- Form이 하는 역할이 DTO 개념이 구현된 것일까?
 - `@NotEmpty(message = "회원 이름은 필수입니다")`
 
+
+5. MemberController
+- `import org.springframework.ui.Model;`
+    - attribute를 추가해서 View에 전달해주는 인터페이스
+    - Dict 형식(java에서는 Map)형식으로 전달되는 듯하다?
+- `import javax.validation.Valid;`
+
+- `import org.springframework.validation.BindingResult;`
+    - thyme-leaf는 MemberForm의 @Setter를 찾아서 연결해준다.
+```java
+    public String create(@Valid MemberForm form, BindingResult result) {
+
+        if (result.hasErrors()) {
+            return "members/createMemberForm";  //@TODO: 사용자 form 잘못 입력 페이지
+        }
+```
+- Model에 앞서 `.addAttribute()`해주었기 때문에 MemberForm이 들어있다. (thyme-leaf를 통해서 setter가 발동했다 이미)
+- 그런 상황에서 `BindingResult`는 `@Valid`지정한 객체를 `.hasErrors()`검사해주는데 form 객체에는 `@NotEmpty`제약 조건이 존재해서 검사 체크가 된다. 그런다음 return 해서 `Get Method`를 다시 쏴주면 저장한 데이터가 그대로 Entity에 들어있다. **(@TODO: 이렇게 정보를 저장하는 방법과 Session을 사용하는 방법과 무엇이 다를까?)**
+
+6. template/members/createMemberForm.html
+- `.fieldError` css style 추가
+
+7. (c.f) `Form 객체` vs `Entity 객체`
+- 요구사항이 정말 단순할 때는 Form 객체없이 엔티티를 직접 등록과 수정화면에서 사용해도 된다.
+- 그러나 화면 요구사항이 복잡해지기 시작하면, 엔티티에 화면을 처리하기 위한 기능이 점점 증가하게 되어 결과적으로 **엔티티는 화면에 종속적으로 변하고 이에 따라 화면 기능 때문에 지저분해진 엔티티는 유지보수하기 어려워진다.**
+- **실무에서 엔티티는 핵심 비즈니스 로직만 가지고, 화면을 위한 로직은 없어야 한다.**
+- **화면이나 API에 맞는 폼객체나 DTO를 사용하자**
+- 이를 통해 화면이나 API 요구사항을 Form, DTO로 처리하고 엔티티는 순수하게 유지한다.
