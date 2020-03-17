@@ -146,14 +146,12 @@
         - Member Entity 근본부터 잘못되었다. 근본은 Entity의 Setter는 닫아두고 Builder Pattern을 사용해서 생성자를 만들어준다. (ID를 제외한)
         - 이후 DTO를 사용하여 UPDATE와 관련된 Method들을 처리해준다.  -> 아니면 setter 열어두고 repository를 통해서 WAS단에서 수정된 데이터들을 proxy객체를 통해서 수정해준다.
         - **절대로 테이블과 매핑되는 Entity 클래스를 Request / Response 클래스로 사용해선 안됨.**
-
         - update 코드에 대한 Stack Overflow 글
-            - 
-            ```java
+            - ```java
                 Customer customerToUpdate = customerRepository.getOne(id);
                 customerToUpdate.setName(customerDto.getName);
                 customerRepository.save(customerToUpdate);
-            ```
+               ```
                 - SQL상에서도 Update Query만 생성된다.
     
         - `Caused by: org.hibernate.AnnotationException: Illegal attempt to map a non collection as a @OneToMany, @ManyToMany or @CollectionOfElements: jpabook.jpashop.domain.Category.parent` 에러 발생
