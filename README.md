@@ -286,3 +286,11 @@
 - 회원 리스트를 보여주는 controller 생성
 - `memberList.html` 생성
     - `<tr th:each="member : ${members}">`
+        - `thyme-leaf`의 for each 문 
+    - `<td th:text="${member.address?.city}"></td>`
+    - `<td th:text="${member.address?.street}"></td>`
+    - `<td th:text="${member.address?.zipcode}"></td>`
+        - 타임리프에서 `?`를 사용하면 null은 무시해서 렌더링 해준다. 매우 편리한 기능
+
+9. BookForm (상품 form) 클래스 생성
+- @TODO: `ID`를 폼에서 처리할 때는 오류 체크 안해줘도 될까??
