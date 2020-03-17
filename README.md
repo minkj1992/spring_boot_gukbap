@@ -232,7 +232,21 @@
 
 
 #### 4. 웹 계층 개발
+1. home controller 생성
 
+2. segment html
+- `.yml`에 파일명 컨벤션과 root path 설정
+```yml
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+```
+- `header`
+- `bodyheader`
+- `footer`
+3. css 생성
+- bootstrap CDN
+- jumbotron 수정 CSS 추가
 
 
 
