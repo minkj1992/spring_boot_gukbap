@@ -302,5 +302,11 @@
     - validate 검증 -> service로 위임
     - 1차적인 에러 검증, positive, @NOtEmpty
     - 1차적인 검증이 완료된다면, book 객체를 생성한다. 이때 id값은 자동으로 처리된다.
-    - @TODO: **id 필드가 자동으로 생성된다면 form객체에 id 필드를 생성해줄 필요가있을까??**
+    - **id 필드가 자동으로 생성된다면 form객체에 id 필드를 생성해줄 필요가있을까??**
+        - `<tr th:each="item : ${items}"><td th:text="${item.id}"></td>` 처럼 view 코드에서 item에 접근하기 위해서는 id 값을 저장하고 있어야 한다. 그런데 itemForm에서 id값이 필요한게 아니라 item 엔티티에서 필요한 것이니 왠지 form 객체에서 item 필드를 Member처럼 없애도 될 것 같다.
 - `items/createItemForm.html`
+    - @TODO: item에 대해서 @Positive 같은 validation 에러가 먹히지 않는다. (thyme leaf 문제)
+
+- `items/createItemForm.html`
+    - 계속 `org.thymeleaf.exceptions.TemplateInputException: Error resolving template [items/itemList], template might not exist or might not be accessible by any of the configured Template Resolvers` 에러 발생
+        - 모든 시도를 해본 결과 `/items/items/itemList.html`로 디렉토리가 잡혀있었다.
