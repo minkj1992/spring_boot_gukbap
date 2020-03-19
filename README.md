@@ -17,6 +17,7 @@
 - Aggregate
     - CASCADE mapping을 활용하여 Aggregate 생명주기 관리한다.
     - 복잡한 Aggregate는 쪼개서 로딩 효율을 높이는 것 대신 JPA Lazy loading을 사용해 필요한 시점에 필요한 데이터들만 로딩되도록 하여 개발 효율성과 속도적인 우의를 가진다.
+        - **`1+n query problem` 문제는 Fetch join과 JPA가 DTO를 바로 조회하게 해주어(select에서 검색하는 요소 최적화) 성능최적화를 시켜준다.**
 - Service
     - 트랜잭션 처리
     - 도메인 간의 연산 처리
