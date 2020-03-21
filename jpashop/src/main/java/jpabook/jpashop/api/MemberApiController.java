@@ -5,9 +5,7 @@ import jpabook.jpashop.dto.CreateMemberRequest;
 import jpabook.jpashop.dto.CreateMemberResponse;
 import jpabook.jpashop.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -37,4 +35,12 @@ public class MemberApiController {
         return new CreateMemberResponse(id);    // new를 직접 호출해주니 디폴트 생성자 필요없다.
     }
 
+    /**
+     * 수정 API
+     */
+    @PutMapping("api/v2/members/{id}")
+    public UpdateMemberResponse updateMemberV2(@PathVariable("id") Long id,
+                                               @RequestBody @Valid UpdateMemberRequest request) {
+        memberService.update()
+    }
 }

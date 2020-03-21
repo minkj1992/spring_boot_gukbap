@@ -49,6 +49,9 @@ public class ItemController {
 
     @GetMapping(value = "/items/{itemId}/edit")
     public String updateItemForm(@PathVariable("itemId") Long itemId, Model model) {
+        //여기서 찾은 item을 바로 수정해주면안된다. 왜냐하면 준영속성 상태이기 때문이다.
+        // 준영속성이 된 이유는 service @Transactional이 종료되는 시점(saveItem())에 em.close()가 이뤄지고
+        // 이때 엔티티들은 1차캐시에서 준영속성 상태로 변경된다.
         Book item = (Book) itemService.findOne(itemId);
         BookForm form = new BookForm();
         form.setId(item.getId());   //@TODO: id를 Set한다니 말도안된다.

@@ -327,15 +327,26 @@
 - updateItem.html 생성
 - updateForm(), update() 함수 생성
 - update코드 service에서 구현
-```java
-    //update 된다면 dirty checking이 일어나서 update query가 쏴진다. 수정 코드는 service에서 위임받아서 해준다 절대 controller에서 해주지 말자 (controller는 DTO만 쏴준다)
-    @Transactional  
-    public void updateItem(Long id, String name, int price) {
-        Item item = itemRepository.findOne(id);
-        item.setName(name);
-        item.setPrice(price);
-    }
-```
+    -
+    ```java
+        //update 된다면 dirty checking이 일어나서 update query가 쏴진다. 수정 코드는 service에서 위임받아서 해준다 절대 controller에서 해주지 말자 (controller는 DTO만 쏴준다)
+        @Transactional  
+        public void updateItem(Long id, String name, int price) {
+            Item item = itemRepository.findOne(id);
+            item.setName(name);
+            item.setPrice(price);
+        }
+    ```
+
+- [영속성 life Cycle](https://joont92.github.io/jpa/%EC%9B%B9-%EC%96%B4%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EA%B3%BC-%EC%98%81%EC%86%8D%EC%84%B1-%EA%B4%80%EB%A6%AC/)
+    - @TODO:
+    - 스프링 트랜잭션 AOP는 `@Transactional`어노테이션이 붙은 메서드가 호출될 때 트랜잭션을 시작한다.
+    - 트랜잭션이 같으면 같은 영속성 컨텍스트를 사용하지만, 다른 경우 다른 영속성 컨텍스트를 사용한다.
+    - 트랜잭션과 영속성 컨텍스트의 생명주기가 같으므로 트랜잭션이 끝남과 동시에 영속성 컨텍스트도 종료된다.
+        - em.close()가 이뤄지기 때문에 해당 영속성 컨텍스트에 존재하던 1차 캐시 엔티티들을 detach상태로 변경한다.
+    - `controller`에서 service를 통하여 1차 캐시에 존재하는 엔티티를 find했을때, detached 된 엔티티가 호출된다.
+    - **만약 @Transactional 메서드에서 다른 2개의 repository를 호출하여 EntityManager를 injection 받았다면, 두 repository의 EntityManager(영속성 컨텍스트)는 같다. 하지만 같은 Repository를 사용하더라도 다른 @Transactional을 사용한다면 둘의 영속성 컨텍스트는 다르게 된다.**
+
 
 12. OrderController
 - cancel

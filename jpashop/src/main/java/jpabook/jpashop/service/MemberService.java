@@ -42,4 +42,12 @@ public class MemberService {
     }
 
 
+    /**
+     * 회원 수정
+     */
+    @Transactional  // commit 타임에 dirty checking (준영속성 -> 영속성 -> update Query)
+    public void update(Long id, String name) {
+        Member member = memberRepository.findOne(id);   // 준 영속성
+        member.setName(name);
+    }
 }
