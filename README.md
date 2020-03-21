@@ -400,3 +400,7 @@
     - `UpdateMemberRequest`
         - @TODO: request는 static으로 생성이유 ( spring이 찾아야 하니까?)
     - `UpdateMemberResponse`
+
+### 4. 회원 조회 API
+#### V1
+> 응답 값으로 엔티티를 직접 외부에 노출

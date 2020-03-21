@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,5 +47,13 @@ public class MemberApiController {
         memberService.update(id, request.getName());
         Member findMember = memberService.findOne(id);
         return new UpdateMemberResponse(findMember.getId(), findMember.getName());
+    }
+
+    /**
+     * 조회 API V1: 응답 값으로 엔티티를 직접 외부에 노출
+     */
+    @GetMapping("api/v1/members")
+    public List<Member> membersV1() {
+        return new memberService.findMembers();
     }
 }
