@@ -45,7 +45,7 @@ public class MemberService {
     /**
      * 회원 수정
      */
-    @Transactional  // commit 타임에 dirty checking (준영속성 -> 영속성 -> update Query)
+    @Transactional  // commit 타임에 dirty checking (준영속성 -- transactional 시작, 영속성컨텍스트 생성 -- > 영속성 ---dirty checking--> update Query ---영속성 컨텍스트 종료, 트랜잭션 종료 ---->)
     public void update(Long id, String name) {
         Member member = memberRepository.findOne(id);   // 준 영속성
         member.setName(name);

@@ -346,6 +346,8 @@
         - em.close()가 이뤄지기 때문에 해당 영속성 컨텍스트에 존재하던 1차 캐시 엔티티들을 detach상태로 변경한다.
     - `controller`에서 service를 통하여 1차 캐시에 존재하는 엔티티를 find했을때, detached 된 엔티티가 호출된다.
     - **만약 @Transactional 메서드에서 다른 2개의 repository를 호출하여 EntityManager를 injection 받았다면, 두 repository의 EntityManager(영속성 컨텍스트)는 같다. 하지만 같은 Repository를 사용하더라도 다른 @Transactional을 사용한다면 둘의 영속성 컨텍스트는 다르게 된다.**
+    - 반대로 준영속성 컨텍스트가 영속성을 획득하는 경우
+        - `준영속성 -- transactional 시작, 영속성컨텍스트 생성 -- > 영속성 획득, 엔티티 수정 --- dirty checking --> update Query ---> 영속성 컨텍스트 종료, 트랜잭션 종료`
 
 
 12. OrderController
@@ -390,3 +392,11 @@
     - `@RequestBody`를 받은 Request 클래스는 `org.springframework.http.converter`를 통하여 자동으로 `new`가 생성되는데, 이에반하여 `Response`클래스는 소스코드에서 `new`를 직접 호출하여 return한다. 
     - 문제가 생겼던것은 생성자를 spring이 찾지 못하여 생겼던 것이기 때문에, Response는 해당 문제에서 자유로울 수 있다.
 - @TODO:그렇다면 왜 Spring은 디폴트 생성자가 필요할까?
+
+### 3.회원 수정 API
+- `updateMemberV2()`
+    - service layer에 `@Transactional update()` 생성
+- update req,rep DTO 생성
+    - `UpdateMemberRequest`
+        - @TODO: request는 static으로 생성이유 ( spring이 찾아야 하니까?)
+    - `UpdateMemberResponse`
