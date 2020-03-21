@@ -1,10 +1,10 @@
 package jpabook.jpashop.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter @Setter
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
 @AllArgsConstructor
 public class CreateMemberResponse {
     private Long id;

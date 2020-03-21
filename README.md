@@ -361,4 +361,21 @@
     - **`Entity`가 변경되면 `API스펙`이 변한다.**
 4. 해결책: API 요청 스펙에 맞추어 별도의 DTO를 파라미터로 받는다.
     - 디렉토리 구조를 어떻게 해야할까?
-    
+
+#### 2-2. v2
+- `CreateMemberRequest`를 `Member` 대신에 `@RequestBody`와 매핑한다.
+- **엔티티와 프레젠테이션 계층을 위한 로직을 분리한다.**
+    - **엔티티를 API스펙에 노출하면 절대 안된다.**
+- 엔티티가 변해도 API 스펙이 변하지 않는다.
+```
+    Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of `jpabook.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `jpabook.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator)
+    at [Source: (PushbackInputStream); line: 2, column: 2]]
+```
+- **RequestBody 생성자를 찾지 못한 문제**
+    - 원인 분석결과 Request DTO에 @AllArgsConstructor가 존재하여 디폴트 생성자가 만들어지지 않았다.
+    - @Data는 @RequiredArgsConstructor를 포함시켜주는데, 이는 final에 대해서만 생성자를 만들어준다. 그런데 RequestDTO에서는 final field가 없었기 때문에 디폴트 생성자가 존재 가능하였다.
+    - @AllArgsConstructor를 사용하고 싶다면 @NoArgsConstructor와 같이 사용해야 생성을 못하는 일을 막을 수 있다.
+- `Response 객체도 디폴트 생성자 없는데 왜 에러가 터지지 않았나?`
+    - `@RequestBody`를 받은 Request 클래스는 `org.springframework.http.converter`를 통하여 자동으로 `new`가 생성되는데, 이에반하여 `Response`클래스는 소스코드에서 `new`를 직접 호출하여 return한다. 
+    - 문제가 생겼던것은 생성자를 spring이 찾지 못하여 생겼던 것이기 때문에, Response는 해당 문제에서 자유로울 수 있다.
+- @TODO:그렇다면 왜 Spring은 디폴트 생성자가 필요할까?
