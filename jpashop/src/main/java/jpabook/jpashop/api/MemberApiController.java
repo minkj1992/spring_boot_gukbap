@@ -1,16 +1,14 @@
 package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Member;
-import jpabook.jpashop.dto.CreateMemberRequest;
-import jpabook.jpashop.dto.CreateMemberResponse;
-import jpabook.jpashop.dto.UpdateMemberRequest;
-import jpabook.jpashop.dto.UpdateMemberResponse;
+import jpabook.jpashop.dto.*;
 import jpabook.jpashop.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,5 +55,18 @@ public class MemberApiController {
         return memberService.findMembers();
     }
 
-    
+    /**
+     * 조회 API V2: 응답 값으로 엔티티가 아닌 별도의 DTO들로 변환한다.
+     */
+    @GetMapping("api/v2/members")
+    public MemberListResponse membersV2() {
+
+        List<Member> findMembers = memberService.findMembers();
+        // Entity -> DTO
+        List<MemberDto> collect = findMembers.stream()
+                .map(m -> new MemberDto(m.getName()))
+                .collect(Collectors.toList());
+
+        return new MemberListResponse(collect);
+    }
 }

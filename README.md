@@ -405,3 +405,30 @@
 #### V1
 > 응답 값으로 엔티티를 직접 외부에 노출
 
+- `membersV1()` 생성
+    - MemberService의 `findAll()` return
+
+- 문제점
+    1. 앞서 언급한 Entity를 전달할때의 문제점
+    2. `Collection`을 반환하면 배열로 전달되어서 JSON을 유연하게 사용하기 어렵다.
+        - `[ ]`타입으로 api 스펙이 정의된다면, count와 같은 값을 추가하기 
+    3. `Infinite recursion`
+        - `org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Infinite recursion (StackOverflowError) (through reference chain: jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]`
+        - Member 가 Order가 `양방향 mapping` 되었다면 Converter가 JSON화 시켜줄때 무한히 끌어서 전달한다.
+        - 무식한 해결방법(json ignore)
+            - @JsonManagedReference
+                - 참조가 되는 앞부분을 의미하며, 정상적으로 직렬화를 수행한다.
+                - Collection Type 에 적용된다.
+            - @JsonBackReference
+                - 참조가 되는 뒷부분을 의미하며, 직렬화를 수행하지 않는다.
+
+
+#### V2
+1. V1 해결방안
+    - DTO
+        - MemberDTO
+            - DTO로 감싸야한다는 것은, 모든 전달되는 Entity들에 대해서 해당된다. (2중구조로 감싸지더라도 DTO로 감싼다)
+        - MemberListResponse
+            - MemberDTO로 감싸진 Member를 Collection 타입으로 주는 것이 아닌, 한번더 DTO로 감싸서 JSON의 유연성을 확보한다.
+    - @TODO: 이렇게 하면 recursion에 걸리지 않는 이유는? DTO로 문제가 되는 Order를 가져오지 않아서
+    - DTO를 사용하면 좋은 추가적인 이유로 **해당 Entity의 원하는 field값만 return 할 수있다.**
