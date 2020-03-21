@@ -341,3 +341,24 @@
 - cancel
 - findOrders
 - update Order
+
+## 3. API 개발 및 성능 최적화
+
+### 1.postman 설치
+
+### 2.회원 등록 API
+- `@RestController`를 사용하여 method에게 `@ResponseBody`붙여주지 않아도 알아서 전달할 type 결정해주게 한다.
+#### 2-1. V1
+1. `CreateMemberResponse` 생성
+2. /dto/ 생성
+    - `CreateMemberRequest`
+    - `CreateMemberResponse`
+
+3. 문제점
+    - Entity에 Presentation 계층을 위한 로직 추가
+    - Entity에 API 검증을 위한 로직 추가 ( @NotEmpty )
+    - 하나의 엔티티에 다양한 API가 필요한데, Entity를 넘겨주면 추후의 복잡한 API들을 추가해주기 어렵다.
+    - **`Entity`가 변경되면 `API스펙`이 변한다.**
+4. 해결책: API 요청 스펙에 맞추어 별도의 DTO를 파라미터로 받는다.
+    - 디렉토리 구조를 어떻게 해야할까?
+    
