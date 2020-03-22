@@ -982,3 +982,22 @@
     where
         categories0_.item_id=?
 ```
+
+- SQL 실행 수
+    - order
+        - 1번
+    - member , address
+        - N번(order 조회 수 만큼)
+    - orderItem
+        - N번(order 조회 수 만큼)
+    - item
+        - N번(orderItem 조회 수 만큼)
+
+#### V2: 엔티티를 DTO로 변환
+- `OrderItemDto` 생성
+- `OrderDto` 생성
+- `OrderListResponse ordersV2()` 생성
+    - `OrderApiController` 클래스 안에
+
+
+
