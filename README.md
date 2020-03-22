@@ -435,7 +435,7 @@
 
 ### 5. 주문조회
 
-#### V1
+#### V1 Entity 반환
 - `ordersV1()` 생성
     - order -> member 와 order ->address LAZY Loading( Proxy 객체 ) -> Jackson이 프록시 객체를 json으로 생성하는 방법을 모른다. (Hibernate5Module을 스프링 빈으로 등록 하여 해결)
 
@@ -454,4 +454,15 @@
 - 기본적으로 Hibernate는 초기화 된 프록시 객체만 노출한다. 초기화 되지 않은 프록시 객체는 노출하지 않는다.
 - `양방향 연관관계` 무한 로딩 방지
     - @JsonIgnore
-    
+
+#### V2 DTO 반환
+- `ordersV2()` 생성
+    - `Order` -> `SimpleOrderDto`
+
+- 문제점
+    - `1+N+N` 쿼리
+        - order 1
+        - member N
+        - delivery N
+    - 다행히 Lazy_loading은 영속성 컨텍스트에서 조회하기 때문에 1차 캐시에 존재하는 경우 쿼리는 생략된다.
+        - @TODO: 영속성 컨텍스트와 1차캐시와의 관계
