@@ -466,3 +466,8 @@
         - delivery N
     - 다행히 Lazy_loading은 영속성 컨텍스트에서 조회하기 때문에 1차 캐시에 존재하는 경우 쿼리는 생략된다.
         - @TODO: 영속성 컨텍스트와 1차캐시와의 관계
+
+#### V3 DTO + fetch join 최적화
+
+- 엔티티 fetch join으로 쿼리 1번에 조회
+- 지연 로딩 x (페치 조인으로 member,delivery는 이미 참조)

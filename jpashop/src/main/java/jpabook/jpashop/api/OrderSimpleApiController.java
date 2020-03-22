@@ -39,9 +39,26 @@ public class OrderSimpleApiController {
         return all;
     }
 
+    /**
+     * V2: DTO 변환
+     * - 단점: V1과 마찬가지로 1+N+N 쿼리 문제 발생
+     */
     @GetMapping("api/v2/simple-orders")
     public List<SimpleOrderDto> ordersV2() {
         List<Order> orders = orderRepository.findAll();
+        List<SimpleOrderDto> result = orders.stream()
+                .map(o -> new SimpleOrderDto(o))
+                .collect(toList());
+        return result;
+    }
+
+    /**
+     * V3: DTO + fetch join
+     * - toOne관계이므로 (1+N) -> 1 최적화 가능
+     */
+    @GetMapping("api/v3/simple-orders")
+    public List<SimpleOrderDto> ordersV3() {
+        List<Order> orders = orderRepository.findAllWithMemberDeliver();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
                 .collect(toList());
