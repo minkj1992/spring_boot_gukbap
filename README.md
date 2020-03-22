@@ -1103,16 +1103,16 @@
 2. `hibernate.default_batch_fetch_size` , `@BatchSize`: 개별 최적화
 이 옵션을 사용하면 컬렉션이나, 프록시 객체를 한꺼번에 설정한 size 만큼 IN 쿼리로 조회한다.
 ```sql
-    where
-        item0_.item_id in (
-            ?, ?, ?, ?, ?
-        )
+select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price as price4_3_0_, item0_.stock_quantity as stock_qu5_3_0_, item0_.author as author6_3_0_, item0_.isbn as isbn7_3_0_, item0_.actor as actor8_3_0_, item0_.director as director9_3_0_, item0_.artist as artist10_3_0_, item0_.etc as etc11_3_0_, item0_.dtype as dtype1_3_0_ from item item0_ where item0_.item_id in (2, 3, 9, 10, 16, 17, 23, 24, 30, 31, 37, 38, 44, 45, 51);
+
+select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price as price4_3_0_, item0_.stock_quantity as stock_qu5_3_0_, item0_.author as author6_3_0_, item0_.isbn as isbn7_3_0_, item0_.actor as actor8_3_0_, item0_.director as director9_3_0_, item0_.artist as artist10_3_0_, item0_.etc as etc11_3_0_, item0_.dtype as dtype1_3_0_ from item item0_ where item0_.item_id in (52, 58, 59, 65, 66);
 ```
 
-3. @TODO: 이게 대체 뭘까
+-  @TODO: 인쿼리가 15개에서 잘리는 이유가 대체 뭘까?
     - 실제로 쿼리 log를 보면 in query가 15개를 max로 해서 db select를 돌린다. item의 갯수가 20개였는데, 15, 5개로 나눠서 query를 날렸다. 
-    - HikariCP의 default Connection pool은 10이라고 하는데
-    - log를 보여주는 ps6py에서 15개 단위로 잘라서 쿼리상으로 그렇게 보여지는 걸까?
+    1) HikariCP의 default Connection pool은 10이라고 하는데
+    2) log를 보여주는 ps6py에서 15개 단위로 잘라서 쿼리상으로 그렇게 보여지는 걸까? 실제로는 1번만 보내지는데 p6spy에서 잘라서 보여주는 경우
+    3) 
 ```json
       "name": "decorator.datasource.flexy-pool.acquiring-strategy.increment-pool.max-overflow-pool-size",
       "type": "java.lang.Integer",
@@ -1120,3 +1120,14 @@
       "defaultValue": 15
 ```
 
+#### V4: JPA에서 DTO 직접 조회
+- `ordersV4()`
+- `OrderQueryRepository`
+- `OrderQueryDto`
+- `OrderItemQueryDto`
+- @TODO: `fetch join vs join`
+- 특징
+    - Query는 루트 1, 컬렉션 N 실행
+    - ToOne 먼저 조회, ToMany 별도 처리
+        - ToOne 관계는 join 해도 데이터 row 증가 하지 않는다.
+    - row 수가 증가하지 않는 ToOne 관계는 조인으로 최적화 하기 쉬우므로 한번에 조회하고, ToMany 관계는 최적화 하기 어려우므로 `findOrderItems()` 같은 별도의 메서드로 조회한다.
