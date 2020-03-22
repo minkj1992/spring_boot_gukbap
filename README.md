@@ -635,6 +635,126 @@
 ### 6. 복잡한 주문조회 (`OneToMany`조회)
 > Simple Order API + Order기준으로 Collection 검색 (`OrderItem`, `Item`)
 
+- 원하는 Data
+```json
+{
+    "data": [
+        {
+            "id": 4,
+            "member": {
+                "id": 1,
+                "name": "제민욱",
+                "address": {
+                    "city": "제주",
+                    "street": "1",
+                    "zipcode": "1111"
+                }
+            },
+            "orderItems": [
+                {
+                    "id": 6,
+                    "item": {
+                        "id": 2,
+                        "name": "JPA1 BOOK",
+                        "price": 10000,
+                        "stockQuantity": 99,
+                        "categories": [],
+                        "author": null,
+                        "isbn": null
+                    },
+                    "orderPrice": 10000,
+                    "count": 1,
+                    "totalPrice": 10000
+                },
+                {
+                    "id": 7,
+                    "item": {
+                        "id": 3,
+                        "name": "JPA2 BOOK",
+                        "price": 20000,
+                        "stockQuantity": 98,
+                        "categories": [],
+                        "author": null,
+                        "isbn": null
+                    },
+                    "orderPrice": 10000,
+                    "count": 2,
+                    "totalPrice": 20000
+                }
+            ],
+            "delivery": {
+                "id": 5,
+                "address": {
+                    "city": "제주",
+                    "street": "1",
+                    "zipcode": "1111"
+                },
+                "status": null
+            },
+            "orderDate": "2020-03-22T15:48:48.867764",
+            "status": "ORDER",
+            "totalPrice": 30000
+        },
+        {
+            "id": 11,
+            "member": {
+                "id": 8,
+                "name": "제민호",
+                "address": {
+                    "city": "하와이",
+                    "street": "2",
+                    "zipcode": "2222"
+                }
+            },
+            "orderItems": [
+                {
+                    "id": 13,
+                    "item": {
+                        "id": 9,
+                        "name": "SPRING1 BOOK",
+                        "price": 20000,
+                        "stockQuantity": 197,
+                        "categories": [],
+                        "author": null,
+                        "isbn": null
+                    },
+                    "orderPrice": 20000,
+                    "count": 3,
+                    "totalPrice": 60000
+                },
+                {
+                    "id": 14,
+                    "item": {
+                        "id": 10,
+                        "name": "SPRING2 BOOK",
+                        "price": 40000,
+                        "stockQuantity": 296,
+                        "categories": [],
+                        "author": null,
+                        "isbn": null
+                    },
+                    "orderPrice": 40000,
+                    "count": 4,
+                    "totalPrice": 160000
+                }
+            ],
+            "delivery": {
+                "id": 12,
+                "address": {
+                    "city": "하와이",
+                    "street": "2",
+                    "zipcode": "2222"
+                },
+                "status": null
+            },
+            "orderDate": "2020-03-22T15:48:48.943277",
+            "status": "ORDER",
+            "totalPrice": 220000
+        }
+    ]
+}
+```
+
 #### V1: 엔티티 직접 노출
 
 
@@ -643,3 +763,222 @@
     - `Member`
     - `Delivery`
 - `List<Order> ordersV1()` 생성
+
+```sql
+    select
+        order0_.order_id as order_id1_6_,
+        order0_.delivery_id as delivery4_6_,
+        order0_.member_id as member_i5_6_,
+        order0_.order_date as order_da2_6_,
+        order0_.status as status3_6_ 
+    from
+        orders order0_
+```
+```sql
+    select
+        member0_.member_id as member_i1_4_0_,
+        member0_.city as city2_4_0_,
+        member0_.street as street3_4_0_,
+        member0_.zipcode as zipcode4_4_0_,
+        member0_.name as name5_4_0_ 
+    from
+        member member0_ 
+    where
+        member0_.member_id=?
+```
+```sql
+    select
+        delivery0_.delivery_id as delivery1_2_0_,
+        delivery0_.city as city2_2_0_,
+        delivery0_.street as street3_2_0_,
+        delivery0_.zipcode as zipcode4_2_0_,
+        delivery0_.status as status5_2_0_ 
+    from
+        delivery delivery0_ 
+    where
+        delivery0_.delivery_id=?
+```
+```sql
+    select
+        orderitems0_.order_id as order_id5_5_0_,
+        orderitems0_.order_item_id as order_it1_5_0_,
+        orderitems0_.order_item_id as order_it1_5_1_,
+        orderitems0_.count as count2_5_1_,
+        orderitems0_.item_id as item_id4_5_1_,
+        orderitems0_.order_id as order_id5_5_1_,
+        orderitems0_.order_price as order_pr3_5_1_ 
+    from
+        order_item orderitems0_ 
+    where
+        orderitems0_.order_id=?
+```
+```sql
+    select
+        item0_.item_id as item_id2_3_0_,
+        item0_.name as name3_3_0_,
+        item0_.price as price4_3_0_,
+        item0_.stock_quantity as stock_qu5_3_0_,
+        item0_.author as author6_3_0_,
+        item0_.isbn as isbn7_3_0_,
+        item0_.actor as actor8_3_0_,
+        item0_.director as director9_3_0_,
+        item0_.artist as artist10_3_0_,
+        item0_.etc as etc11_3_0_,
+        item0_.dtype as dtype1_3_0_ 
+    from
+        item item0_ 
+    where
+        item0_.item_id=?
+```
+```sql
+    select
+        item0_.item_id as item_id2_3_0_,
+        item0_.name as name3_3_0_,
+        item0_.price as price4_3_0_,
+        item0_.stock_quantity as stock_qu5_3_0_,
+        item0_.author as author6_3_0_,
+        item0_.isbn as isbn7_3_0_,
+        item0_.actor as actor8_3_0_,
+        item0_.director as director9_3_0_,
+        item0_.artist as artist10_3_0_,
+        item0_.etc as etc11_3_0_,
+        item0_.dtype as dtype1_3_0_ 
+    from
+        item item0_ 
+    where
+        item0_.item_id=?
+```
+```sql
+    select
+        member0_.member_id as member_i1_4_0_,
+        member0_.city as city2_4_0_,
+        member0_.street as street3_4_0_,
+        member0_.zipcode as zipcode4_4_0_,
+        member0_.name as name5_4_0_ 
+    from
+        member member0_ 
+    where
+        member0_.member_id=?
+```
+```sql
+    select
+        delivery0_.delivery_id as delivery1_2_0_,
+        delivery0_.city as city2_2_0_,
+        delivery0_.street as street3_2_0_,
+        delivery0_.zipcode as zipcode4_2_0_,
+        delivery0_.status as status5_2_0_ 
+    from
+        delivery delivery0_ 
+    where
+        delivery0_.delivery_id=?
+```
+```sql
+    select
+        orderitems0_.order_id as order_id5_5_0_,
+        orderitems0_.order_item_id as order_it1_5_0_,
+        orderitems0_.order_item_id as order_it1_5_1_,
+        orderitems0_.count as count2_5_1_,
+        orderitems0_.item_id as item_id4_5_1_,
+        orderitems0_.order_id as order_id5_5_1_,
+        orderitems0_.order_price as order_pr3_5_1_ 
+    from
+        order_item orderitems0_ 
+    where
+        orderitems0_.order_id=?
+```
+```sql
+    select
+        item0_.item_id as item_id2_3_0_,
+        item0_.name as name3_3_0_,
+        item0_.price as price4_3_0_,
+        item0_.stock_quantity as stock_qu5_3_0_,
+        item0_.author as author6_3_0_,
+        item0_.isbn as isbn7_3_0_,
+        item0_.actor as actor8_3_0_,
+        item0_.director as director9_3_0_,
+        item0_.artist as artist10_3_0_,
+        item0_.etc as etc11_3_0_,
+        item0_.dtype as dtype1_3_0_ 
+    from
+        item item0_ 
+    where
+        item0_.item_id=?
+```
+```sql
+    select
+        item0_.item_id as item_id2_3_0_,
+        item0_.name as name3_3_0_,
+        item0_.price as price4_3_0_,
+        item0_.stock_quantity as stock_qu5_3_0_,
+        item0_.author as author6_3_0_,
+        item0_.isbn as isbn7_3_0_,
+        item0_.actor as actor8_3_0_,
+        item0_.director as director9_3_0_,
+        item0_.artist as artist10_3_0_,
+        item0_.etc as etc11_3_0_,
+        item0_.dtype as dtype1_3_0_ 
+    from
+        item item0_ 
+    where
+        item0_.item_id=?
+```
+```sql
+    select
+        categories0_.item_id as item_id2_1_0_,
+        categories0_.category_id as category1_1_0_,
+        category1_.category_id as category1_0_1_,
+        category1_.name as name2_0_1_,
+        category1_.parent_id as parent_i3_0_1_ 
+    from
+        category_item categories0_ 
+    inner join
+        category category1_ 
+            on categories0_.category_id=category1_.category_id 
+    where
+        categories0_.item_id=?
+```
+```sql
+    select
+        categories0_.item_id as item_id2_1_0_,
+        categories0_.category_id as category1_1_0_,
+        category1_.category_id as category1_0_1_,
+        category1_.name as name2_0_1_,
+        category1_.parent_id as parent_i3_0_1_ 
+    from
+        category_item categories0_ 
+    inner join
+        category category1_ 
+            on categories0_.category_id=category1_.category_id 
+    where
+        categories0_.item_id=?
+```
+```sql
+    select
+        categories0_.item_id as item_id2_1_0_,
+        categories0_.category_id as category1_1_0_,
+        category1_.category_id as category1_0_1_,
+        category1_.name as name2_0_1_,
+        category1_.parent_id as parent_i3_0_1_ 
+    from
+        category_item categories0_ 
+    inner join
+        category category1_ 
+            on categories0_.category_id=category1_.category_id 
+    where
+        categories0_.item_id=?
+```
+```sql
+    select
+        categories0_.item_id as item_id2_1_0_,
+        categories0_.category_id as category1_1_0_,
+        category1_.category_id as category1_0_1_,
+        category1_.name as name2_0_1_,
+        category1_.parent_id as parent_i3_0_1_ 
+    from
+        category_item categories0_ 
+    inner join
+        category category1_ 
+            on categories0_.category_id=category1_.category_id 
+    where
+        categories0_.item_id=?
+```
