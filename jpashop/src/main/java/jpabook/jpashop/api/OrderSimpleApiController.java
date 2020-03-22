@@ -1,7 +1,7 @@
 package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Order;
-import jpabook.jpashop.dto.OrderSimpleResponse;
+import jpabook.jpashop.dto.OrderListResponse;
 import jpabook.jpashop.dto.SimpleOrderDto;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.query.OrderSimpleQueryRepository;
@@ -44,12 +44,12 @@ public class OrderSimpleApiController {
      * - 단점: V1과 마찬가지로 1+N+N 쿼리 문제 발생
      */
     @GetMapping("api/v2/simple-orders")
-    public OrderSimpleResponse ordersV2() {
+    public OrderListResponse ordersV2() {
         List<Order> orders = orderRepository.findAll();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
                 .collect(toList());
-        return new OrderSimpleResponse(result);
+        return new OrderListResponse(result);
     }
 
     /**
@@ -57,12 +57,12 @@ public class OrderSimpleApiController {
      * - toOne관계이므로 (1+N) -> 1 최적화 가능
      */
     @GetMapping("api/v3/simple-orders")
-    public OrderSimpleResponse ordersV3() {
+    public OrderListResponse ordersV3() {
         List<Order> orders = orderRepository.findAllWithMemberDeliver();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
                 .collect(toList());
-        return new OrderSimpleResponse(result);
+        return new OrderListResponse(result);
     }
 
     /**
@@ -71,7 +71,7 @@ public class OrderSimpleApiController {
      * - DB query에서 원하는 select 인자 선택 가능
      */
     @GetMapping("api/v4/simple-orders")
-    public OrderSimpleResponse ordersV4() {
-        return new OrderSimpleResponse(orderSimpleQueryRepository.findOrderDtos());
+    public OrderListResponse ordersV4() {
+        return new OrderListResponse(orderSimpleQueryRepository.findOrderDtos());
     }
 }

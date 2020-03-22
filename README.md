@@ -433,7 +433,38 @@
     - @TODO: 이렇게 하면 recursion에 걸리지 않는 이유는? DTO로 문제가 되는 Order를 가져오지 않아서
     - DTO를 사용하면 좋은 추가적인 이유로 **해당 Entity의 원하는 field값만 return 할 수있다.**
 
-### 5. 주문조회
+### 5. 간단한 주문조회 (`OneToOne`, `ManyToOne` 조회)
+> orderItem을 제외하고 Order 목록만 보여준다. 최종적으로 O(1) query가능
+- toOne(OneToOne, ManyToOne)관계만 존재
+- 원하는 Data
+```json
+{
+    "data": [
+        {
+            "orderId": 4,
+            "name": "제민욱",
+            "orderDate": "2020-03-22T15:05:58.312896",
+            "orderStatus": "ORDER",
+            "address": {
+                "city": "제주",
+                "street": "1",
+                "zipcode": "1111"
+            }
+        },
+        {
+            "orderId": 11,
+            "name": "제민호",
+            "orderDate": "2020-03-22T15:05:58.389921",
+            "orderStatus": "ORDER",
+            "address": {
+                "city": "하와이",
+                "street": "2",
+                "zipcode": "2222"
+            }
+        }
+    ]
+}
+```
 
 #### V1 Entity 반환
 - `ordersV1()` 생성
@@ -600,3 +631,15 @@
     - Select 원하는 값 선택 조회
     - 미비하지만 네트워크 최적화 (불필요한 select 돌아가지 않으니)    
 
+
+### 6. 복잡한 주문조회 (`OneToMany`조회)
+> Simple Order API + Order기준으로 Collection 검색 (`OrderItem`, `Item`)
+
+#### V1: 엔티티 직접 노출
+
+
+- Order field들 중, 양방향으로 order와 관계가지는 Entity들 `@JsonIgnore` 설정
+    - `OrderItem`
+    - `Member`
+    - `Delivery`
+- `List<Order> ordersV1()` 생성
