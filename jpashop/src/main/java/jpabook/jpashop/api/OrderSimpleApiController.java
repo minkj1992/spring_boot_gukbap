@@ -1,15 +1,14 @@
 package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.dto.OrderSimpleResponse;
 import jpabook.jpashop.dto.SimpleOrderDto;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.query.OrderSimpleQueryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -21,6 +20,7 @@ import static java.util.stream.Collectors.*;
 public class OrderSimpleApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderSimpleQueryRepository orderSimpleQueryRepository;
 
 
 
@@ -44,12 +44,12 @@ public class OrderSimpleApiController {
      * - 단점: V1과 마찬가지로 1+N+N 쿼리 문제 발생
      */
     @GetMapping("api/v2/simple-orders")
-    public List<SimpleOrderDto> ordersV2() {
+    public OrderSimpleResponse ordersV2() {
         List<Order> orders = orderRepository.findAll();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
                 .collect(toList());
-        return result;
+        return new OrderSimpleResponse(result);
     }
 
     /**
@@ -57,11 +57,21 @@ public class OrderSimpleApiController {
      * - toOne관계이므로 (1+N) -> 1 최적화 가능
      */
     @GetMapping("api/v3/simple-orders")
-    public List<SimpleOrderDto> ordersV3() {
+    public OrderSimpleResponse ordersV3() {
         List<Order> orders = orderRepository.findAllWithMemberDeliver();
         List<SimpleOrderDto> result = orders.stream()
                 .map(o -> new SimpleOrderDto(o))
                 .collect(toList());
-        return result;
+        return new OrderSimpleResponse(result);
+    }
+
+    /**
+     * V4: JPA -> DTO 바로 조회 (/repository에 query 폴더 생성)
+     * - 1 query
+     * - DB query에서 원하는 select 인자 선택 가능
+     */
+    @GetMapping("api/v4/simple-orders")
+    public OrderSimpleResponse ordersV4() {
+        return new OrderSimpleResponse(orderSimpleQueryRepository.findOrderDtos());
     }
 }

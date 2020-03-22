@@ -19,11 +19,10 @@ public class SimpleOrderDto {
 
 
     public SimpleOrderDto(Order order) {
-        Member member = order.getMember();
         this.orderId = order.getId();
-        this.name = member.getName();
+        this.name = order.getMember().getName();
         this.orderDate = order.getOrderDate();
         this.orderStatus = order.getStatus();
-        this.address = member.getAddress();
+        this.address = order.getDelivery().getAddress();
     }
 }

@@ -467,7 +467,136 @@
     - 다행히 Lazy_loading은 영속성 컨텍스트에서 조회하기 때문에 1차 캐시에 존재하는 경우 쿼리는 생략된다.
         - @TODO: 영속성 컨텍스트와 1차캐시와의 관계
 
-#### V3 DTO + fetch join 최적화
+- Order 조회
+```sql
+    select
+        order0_.order_id as order_id1_6_,
+        order0_.delivery_id as delivery4_6_,
+        order0_.member_id as member_i5_6_,
+        order0_.order_date as order_da2_6_,
+        order0_.status as status3_6_ 
+    from
+        orders order0_
+```
+- Member 조회
+```sql
+    select 
+        member0_.member_id as member_i1_4_0_, 
+        member0_.city as city2_4_0_, 
+        member0_.street as street3_4_0_, 
+        member0_.zipcode as zipcode4_4_0_, 
+        member0_.name as name5_4_0_ 
+    from 
+        member member0_ 
+    where 
+        member0_.member_id=1;
+```
+```sql
+    select
+        member0_.member_id as member_i1_4_0_,
+        member0_.city as city2_4_0_,
+        member0_.street as street3_4_0_,
+        member0_.zipcode as zipcode4_4_0_,
+        member0_.name as name5_4_0_ 
+    from
+        member member0_ 
+    where
+        member0_.member_id=8;
+```
+
+- Delivery 조회
+```sql
+    select
+        delivery0_.delivery_id as delivery1_2_0_,
+        delivery0_.city as city2_2_0_,
+        delivery0_.street as street3_2_0_,
+        delivery0_.zipcode as zipcode4_2_0_,
+        delivery0_.status as status5_2_0_ 
+    from
+        delivery delivery0_ 
+    where
+        delivery0_.delivery_id=5
+```
+
+```sql
+    select
+        delivery0_.delivery_id as delivery1_2_0_,
+        delivery0_.city as city2_2_0_,
+        delivery0_.street as street3_2_0_,
+        delivery0_.zipcode as zipcode4_2_0_,
+        delivery0_.status as status5_2_0_ 
+    from
+        delivery delivery0_ 
+    where
+        delivery0_.delivery_id=12
+```
+
+
+#### V3 DTO + fetch join 최적화 (엔티티 DTO 변환)
 
 - 엔티티 fetch join으로 쿼리 1번에 조회
 - 지연 로딩 x (페치 조인으로 member,delivery는 이미 참조)
+
+```sql
+    select
+        order0_.order_id as order_id1_6_0_,
+        member1_.member_id as member_i1_4_1_,
+        delivery2_.delivery_id as delivery1_2_2_,
+        order0_.delivery_id as delivery4_6_0_,
+        order0_.member_id as member_i5_6_0_,
+        order0_.order_date as order_da2_6_0_,
+        order0_.status as status3_6_0_,
+        member1_.city as city2_4_1_,
+        member1_.street as street3_4_1_,
+        member1_.zipcode as zipcode4_4_1_,
+        member1_.name as name5_4_1_,
+        delivery2_.city as city2_2_2_,
+        delivery2_.street as street3_2_2_,
+        delivery2_.zipcode as zipcode4_2_2_,
+        delivery2_.status as status5_2_2_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id
+```
+
+- 만약 같은 Member가 다른 Order를 여러번 했다면, member query는 해당 영속성 컨텍스트 sql query 캐시에 존재하므로 1번만 검색할 것이다.
+
+#### V4 JPA에서 DTO 바로 조회 (DTO 바로 조회)
+- 장점
+    - select 절에서 원하는 데이터 직접 조회 (원하는 값 선택 조회)
+    - 미비하긴 하지만, 애플리케이션 네트워크 용량 최적화
+- 단점
+    - repository 재사용성 떨어짐
+    - **API 스펙에 맞춘 코드가 Repository에 들어가게된다.**
+```sql
+    select
+        order0_.order_id as col_0_0_,
+        member1_.name as col_1_0_,
+        order0_.order_date as col_2_0_,
+        order0_.status as col_3_0_,
+        delivery2_.city as col_4_0_,
+        delivery2_.street as col_4_1_,
+        delivery2_.zipcode as col_4_2_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id
+```
+
+#### V3 vs V4 (엔티티 조회 후 DTO 변환 vs DTO 바로 조회)
+- V3
+    - 리포지토리 재사용성 증가
+    - 개발 단순화
+- V4
+    - Select 원하는 값 선택 조회
+    - 미비하지만 네트워크 최적화 (불필요한 select 돌아가지 않으니)    
+
