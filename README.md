@@ -1029,3 +1029,94 @@
 - **컬렉션 fetch join은 1개만 사용하라**
     - 컬렉션이 둘 이상 fetch join할 경우 데이터 `정합성`이 깨질 수 있다.
 
+- query 1번으로 최적화
+```sql
+    select
+        distinct order0_.order_id as order_id1_6_0_,
+        member1_.member_id as member_i1_4_1_,
+        delivery2_.delivery_id as delivery1_2_2_,
+        orderitems3_.order_item_id as order_it1_5_3_,
+        item4_.item_id as item_id2_3_4_,
+        order0_.delivery_id as delivery4_6_0_,
+        order0_.member_id as member_i5_6_0_,
+        order0_.order_date as order_da2_6_0_,
+        order0_.status as status3_6_0_,
+        member1_.city as city2_4_1_,
+        member1_.street as street3_4_1_,
+        member1_.zipcode as zipcode4_4_1_,
+        member1_.name as name5_4_1_,
+        delivery2_.city as city2_2_2_,
+        delivery2_.street as street3_2_2_,
+        delivery2_.zipcode as zipcode4_2_2_,
+        delivery2_.status as status5_2_2_,
+        orderitems3_.count as count2_5_3_,
+        orderitems3_.item_id as item_id4_5_3_,
+        orderitems3_.order_id as order_id5_5_3_,
+        orderitems3_.order_price as order_pr3_5_3_,
+        orderitems3_.order_id as order_id5_5_0__,
+        orderitems3_.order_item_id as order_it1_5_0__,
+        item4_.name as name3_3_4_,
+        item4_.price as price4_3_4_,
+        item4_.stock_quantity as stock_qu5_3_4_,
+        item4_.author as author6_3_4_,
+        item4_.isbn as isbn7_3_4_,
+        item4_.actor as actor8_3_4_,
+        item4_.director as director9_3_4_,
+        item4_.artist as artist10_3_4_,
+        item4_.etc as etc11_3_4_,
+        item4_.dtype as dtype1_3_4_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id 
+    inner join
+        order_item orderitems3_ 
+            on order0_.order_id=orderitems3_.order_id 
+    inner join
+        item item4_ 
+            on orderitems3_.item_id=item4_.item_id
+```
+- Distinct
+    - sql에서의 distinct는 모든 row가 같아야 중복제거 된다. 하지만 jpa에서 Entity가 같은 Entity라면 jpa상에서 중복 제거해준다.
+    - 실제 sql상에서 table
+
+![](./img_src/before_distinct_order.png)
+
+#### V3.1: 엔티티를 DTO로 변환 - 페이징 한계 처리
+
+1. toOne 관계는 fetch join + offset,limit 전달
+```java
+    public List<Order> findAllWithMemberDeliver(int offset,int limit) {
+        return em.createQuery(
+                "select o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+```
+2. `hibernate.default_batch_fetch_size` , `@BatchSize`: 개별 최적화
+이 옵션을 사용하면 컬렉션이나, 프록시 객체를 한꺼번에 설정한 size 만큼 IN 쿼리로 조회한다.
+```sql
+    where
+        item0_.item_id in (
+            ?, ?, ?, ?, ?
+        )
+```
+
+3. @TODO: 이게 대체 뭘까
+    - 실제로 쿼리 log를 보면 in query가 15개를 max로 해서 db select를 돌린다. item의 갯수가 20개였는데, 15, 5개로 나눠서 query를 날렸다. 
+    - HikariCP의 default Connection pool은 10이라고 하는데
+    - log를 보여주는 ps6py에서 15개 단위로 잘라서 쿼리상으로 그렇게 보여지는 걸까?
+```json
+      "name": "decorator.datasource.flexy-pool.acquiring-strategy.increment-pool.max-overflow-pool-size",
+      "type": "java.lang.Integer",
+      "sourceType": "com.github.gavlyukovskiy.boot.jdbc.decorator.flexypool.FlexyPoolProperties$AcquiringStrategy$IncrementPool",
+      "defaultValue": 15
+```
+
