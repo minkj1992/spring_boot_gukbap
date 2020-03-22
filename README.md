@@ -432,3 +432,26 @@
             - MemberDTO로 감싸진 Member를 Collection 타입으로 주는 것이 아닌, 한번더 DTO로 감싸서 JSON의 유연성을 확보한다.
     - @TODO: 이렇게 하면 recursion에 걸리지 않는 이유는? DTO로 문제가 되는 Order를 가져오지 않아서
     - DTO를 사용하면 좋은 추가적인 이유로 **해당 Entity의 원하는 field값만 return 할 수있다.**
+
+### 5. 주문조회
+
+#### V1
+- `ordersV1()` 생성
+    - order -> member 와 order ->address LAZY Loading( Proxy 객체 ) -> Jackson이 프록시 객체를 json으로 생성하는 방법을 모른다. (Hibernate5Module을 스프링 빈으로 등록 하여 해결)
+
+- `com.fasterxml.jackson.datatype:jackson-datatype-hibernate5` 라이브러리 추가
+- `FORCE_LAZY_LOADING` on
+
+```java
+    @Bean
+    Hibernate5Module hibernate5Module() {
+        Hibernate5Module hibernate5Module = new Hibernate5Module();
+        hibernate5Module.configure(Hibernate5Module.Feature.FORCE_LAZY_LOADING,
+                true);
+        return hibernate5Module;
+    }
+```
+- 기본적으로 Hibernate는 초기화 된 프록시 객체만 노출한다. 초기화 되지 않은 프록시 객체는 노출하지 않는다.
+- `양방향 연관관계` 무한 로딩 방지
+    - @JsonIgnore
+    
