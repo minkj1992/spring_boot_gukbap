@@ -1000,4 +1000,32 @@
     - `OrderApiController` 클래스 안에
 
 
+#### V3: 엔티티를 DTO로 변환 (fetch join 최적화)
+- `orderV3()`
+- Repository에 `findAllWithItem()` 추가
+```java
+    // 주문조회 V3
+    public List<Order> findAllWithItem() {
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d" +
+                        " join fetch o.orderItems oi" +
+                        " join fetch oi.item i", Order.class)
+                .getResultList();
+        
+    }
+```
+- JPQL에서 `distinct`
+    - SQL에 distinct를 추가
+    - 같은 엔티티가 조회되면 애플리케이션에서 중복 걸러준다.
+
+- 단점: **페이징이 불가능하다**
+    - `limit`
+    - `offset`
+    - 정확하게는 컬렉션 페치 조인한 상태에서 페이징을 요구하면, 하이버네이트는 무엇을 기준으로 페이징을 해야하는지 모르기 때문에, 경고 로그를 남기면서 모든 데이터를 DB로 부터 읽어온뒤, **메모리에서 페이징 해버린다.**
+    - 이때 생성된 페이징은 내가 원하던 Order 기준이 아닌, 더 많은 수를 차지하는 OrderItem(쿼리 뻥튀기 시킨 데이터)을 기준으로 페이징이 되기 때문에 부정확하다.
+
+- **컬렉션 fetch join은 1개만 사용하라**
+    - 컬렉션이 둘 이상 fetch join할 경우 데이터 `정합성`이 깨질 수 있다.
 

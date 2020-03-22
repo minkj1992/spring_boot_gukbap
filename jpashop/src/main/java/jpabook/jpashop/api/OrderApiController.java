@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
+
 @RestController
 @RequiredArgsConstructor
 public class OrderApiController {
@@ -40,7 +42,17 @@ public class OrderApiController {
         List<Order> orders = orderRepository.findAll();
         List<OrderDto> result = orders.stream()
                 .map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
+                .collect(toList());
+        return new OrderListResponse(result);
+    }
+
+    // OrderRepository에 findAllWithItem()추가
+    @GetMapping("api/v3/orders")
+    public OrderListResponse ordersV3() {
+        List<Order> orders = orderRepository.findAllWithItem();
+        List<OrderDto> result = orders.stream()
+                .map(o-> new OrderDto())
+                .collect(toList());
         return new OrderListResponse(result);
     }
 
