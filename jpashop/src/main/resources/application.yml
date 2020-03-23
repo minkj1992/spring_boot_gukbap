@@ -13,7 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true # SQL문을 보기 좋게 출력해 준다.
-        default_batch_fetch_size: 500  # DB IN절 파라미터를 해당 값으로 적용한다.(100~1000) 높을 수록 DB와 Application 부하가 증가, 대신 query 수 감소
+        default_batch_fetch_size: 500  # DB IN절 파라미터를 해당 값으로 적용한다.(인쿼리 갯수,100~1000) 높을 수록 DB와 Application 부하가 증가, 대신 query 수 감소
 
 logging.level:
  org.hibernate.SQL: debug # logger를 통해 하이버네이트 실행 SQL을 남긴다. (SL4j)

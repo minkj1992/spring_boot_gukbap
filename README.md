@@ -1087,6 +1087,7 @@
 ![](./img_src/before_distinct_order.png)
 
 #### V3.1: 엔티티를 DTO로 변환 - 페이징 한계 처리
+> 1+N+N -> 1+1+1
 
 1. toOne 관계는 fetch join + offset,limit 전달
 ```java
@@ -1101,7 +1102,7 @@
     }
 ```
 2. `hibernate.default_batch_fetch_size` , `@BatchSize`: 개별 최적화
-이 옵션을 사용하면 컬렉션이나, 프록시 객체를 한꺼번에 설정한 size 만큼 IN 쿼리로 조회한다.
+이 옵션을 사용하면 컬렉션이나, 프록시 객체를 한꺼번에 설정한 size 만큼 IN 쿼리로 조회한다. (**인쿼리 파라미터 갯수**)
 ```sql
 select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price as price4_3_0_, item0_.stock_quantity as stock_qu5_3_0_, item0_.author as author6_3_0_, item0_.isbn as isbn7_3_0_, item0_.actor as actor8_3_0_, item0_.director as director9_3_0_, item0_.artist as artist10_3_0_, item0_.etc as etc11_3_0_, item0_.dtype as dtype1_3_0_ from item item0_ where item0_.item_id in (2, 3, 9, 10, 16, 17, 23, 24, 30, 31, 37, 38, 44, 45, 51);
 
@@ -1126,8 +1127,106 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
 - `OrderQueryDto`
 - `OrderItemQueryDto`
 - @TODO: `fetch join vs join`
+
+- `xToOne + xToMany` 관계 통합
+```java
+    public List<OrderQueryDto> findOrderQueryDtos() {
+        // 루트 조회 ( toOne 코드 한번에 조회 )
+        List<OrderQueryDto> result = findOrders();
+
+        // 컬렉션 추가
+        result.forEach(o -> {
+            List<OrderItemQueryDto> orderItems = findOrderItems(o.getOrderId());
+            o.setOrderItems(orderItems);
+        });
+
+        return result;
+    }
+```
+- `xToOne`, `xToMany` 쿼리
+```java
+   /**
+     * xToOne 관계 조회
+     */
+    private List<OrderQueryDto> findOrders() {
+        return em.createQuery("select new jpabook.jpashop.dto.OrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
+                " from Order o" +
+                " join o.member m" +
+                " join o.delivery d", OrderQueryDto.class)
+                .getResultList();
+    }
+
+    /**
+     * xToMany 관계 조회
+     */
+    private List<OrderItemQueryDto> findOrderItems(Long orderId) {
+        return em.createQuery("select new jpabook.jpashop.dto.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+                        " from OrderItem oi" +
+                        " join oi.item i" +
+                        " where oi.order.id = : orderId", OrderItemQueryDto.class)
+                .setParameter("orderId", orderId)
+                .getResultList();
+
+    }
+```
+
 - 특징
     - Query는 루트 1, 컬렉션 N 실행
     - ToOne 먼저 조회, ToMany 별도 처리
         - ToOne 관계는 join 해도 데이터 row 증가 하지 않는다.
     - row 수가 증가하지 않는 ToOne 관계는 조인으로 최적화 하기 쉬우므로 한번에 조회하고, ToMany 관계는 최적화 하기 어려우므로 `findOrderItems()` 같은 별도의 메서드로 조회한다.
+
+#### V5: JPA에서 DTO 직접 조회 - 컬렉션 조회 최적화
+> OrderItem을 찾기위해 Order당 OrderItem 조회 O(n x m)  ----> 캐싱을 사용하여 O(n)로 전환
+- 핵심 method
+```java
+    public List<OrderQueryDto> findAllByDto_optimization() {
+        List<OrderQueryDto> result = findOrders();  //xToOne
+
+        Map<Long, List<OrderItemQueryDto>> orderItemMap = findOrderItemMap(toOrderIds(result)); //OrderIds 리스트를 넘겨주어 해당 OrderId에 속하는 OrderItem을 리스트 형식으로 가져온다.
+
+
+        result.forEach(o -> o.setOrderItems(orderItemMap.get(o.getOrderId())));
+
+        return result;
+    }
+```
+- Map을 사용해서 `orderId:orderItems`를 캐싱해준다.
+- 이후 해당 `result.orderItems = orderItemMap[orderId]`
+
+```sql
+    select
+        order0_.order_id as col_0_0_,
+        member1_.name as col_1_0_,
+        order0_.order_date as col_2_0_,
+        order0_.status as col_3_0_,
+        delivery2_.city as col_4_0_,
+        delivery2_.street as col_4_1_,
+        delivery2_.zipcode as col_4_2_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id
+```
+
+
+```sql
+    select
+        orderitem0_.order_id as col_0_0_,
+        item1_.name as col_1_0_,
+        orderitem0_.order_price as col_2_0_,
+        orderitem0_.count as col_3_0_ 
+    from
+        order_item orderitem0_ 
+    inner join
+        item item1_ 
+            on orderitem0_.item_id=item1_.item_id 
+    where
+        orderitem0_.order_id in (
+            ? , ? , ? , ? , ? , ? , ? , ? , ? , ?
+        )
+```

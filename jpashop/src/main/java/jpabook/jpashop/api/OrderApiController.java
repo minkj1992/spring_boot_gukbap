@@ -82,4 +82,13 @@ public class OrderApiController {
     public OrderListResponse ordersV4() {
         return new OrderListResponse(orderQueryRepository.findOrderQueryDtos());
     }
+
+    /**
+     * V5: JPA에서 DTO 직접 조회
+     */
+    @GetMapping("/api/v5/orders")
+    public OrderListResponse ordersV5() {
+        return new OrderListResponse(orderQueryRepository.findAllByDto_optimization());
+    }
+
 }
