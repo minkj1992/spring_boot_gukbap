@@ -1230,3 +1230,116 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
             ? , ? , ? , ? , ? , ? , ? , ? , ? , ?
         )
 ```
+#### V6: JPA에서 DTO로 직접 조회, Flat Data 최적화
+
+- 한번의 쿼리로 최적화
+```sql
+    select
+        order0_.order_id as col_0_0_,
+        member1_.name as col_1_0_,
+        order0_.order_date as col_2_0_,
+        order0_.status as col_3_0_,
+        delivery2_.city as col_4_0_,
+        delivery2_.street as col_4_1_,
+        delivery2_.zipcode as col_4_2_,
+        item4_.name as col_5_0_,
+        orderitems3_.order_price as col_6_0_,
+        orderitems3_.count as col_7_0_ 
+    from
+        orders order0_ 
+    inner join
+        member member1_ 
+            on order0_.member_id=member1_.member_id 
+    inner join
+        delivery delivery2_ 
+            on order0_.delivery_id=delivery2_.delivery_id 
+    inner join
+        order_item orderitems3_ 
+            on order0_.order_id=orderitems3_.order_id 
+    inner join
+        item item4_ 
+            on orderitems3_.item_id=item4_.item_id
+```
+- 문제점
+    - 쿼리는 한번이지만 join으로 DB data상 중복데이터가 많다.
+    - 애플리케이션 오버헤드 크다.
+    - 페이징 불가능
+
+## **[3] 조회 최적화 정리**
+### 3-1. API 조회
+- API 조회 요청시 (2)
+    1. 엔티티 조회 (코드 단순화, 성능최적화 자유도 상대적으로 떨어짐)
+        - V1: 엔티티를 직접 조회 후 반환
+        - V2: DTO 변환 후 반환
+        - V3: fetch join으로 쿼리 수 최적화
+            - 페이징 불가능
+        - V3.1: 페이징 가능
+            - `xToOne fetch join` + `xToMany`은 Lazy_Loading
+            - lazy_loading 최적화를 위해 `ibernate.default_batch_fetch_size = 500`
+    2. DTO 조회 (코드 복잡, 성능최적화 자유도 상대적으로 높음)
+        - V4: JPA에서 DTO 직접 조회
+        - V5: 컬렉션 조회 최적화 ( MAP사용 )
+        - V6: flat 데이터 최적화
+### 3-2. `조회 최적화 Best Practice`
+- `조회 최적화 Best Practice`
+    1. `엔티티 조회` 우선
+        - 1-1. `fetch join`을 통한 쿼리 수 최적화
+        - 1-2. `컬렉션 최적화`
+            - `페이징 o`    : toOne관계 fetch join + `hibernate.default_batch_fetch_size`을 통한 Lazy_loading
+            - `페이징 x`    : 관계에 상관없이 모두 fetch join
+    2. (여전히 문제 발생 시)`DTO 조회`
+    3. (여전히 문제 발생 시)`NativeSQL` / `JDBCTemplate`
+
+### 3-3. DTO 조회(v4,v5,v6) `Trade-Off`
+- DTO 조회(v4,v5,v6) `Trade-Off`
+    - V4
+        - 코드 단순
+        - 특정 주문 한건만 조회한다면 성능 최적화 충분
+        - ex) Order 1개에 대해서 OrderItem을 찾을 경우
+    - V5
+        - 코드 복잡
+        - 여러 주문을 한꺼번에 조회
+        - ex) Order 1000건에 대한 OrderItem
+            - V4: 1 + 1000
+            - V5: 1 + 1
+    - V6
+        - 완전 다른 접근 방식
+        - 쿼리 한번으로 최적화
+        - 페이징 불가능
+        - 중복 전송량 증가하여 V5와의 성능차이 미비
+
+
+## **[4] OSIV**
+> 이럴수가 ...
+- 실무에서는 OSIV를 off 해야 한다.
+    - connection pool에 db connect이 영속성 유지 기간동안 살아있어, 말라버릴 수 있다.
+- OSIV는 default로 on 되어있다.
+    `spring.jpa.open-in-view : true`기본값
+
+OSIV 전략은 트랜잭션 시작처럼 최초 데이터베이스 커넥션 시작 시점부터 API 응답이 끝날 때 까지 영속성컨텍스트와 데이터베이스 커넥션을 유지한다. 
+이 덕분에 지금까지 View Template이나 API 컨트롤러에서 지연 로딩이 가능했던 것이다. 지연 로딩은 영속성 컨텍스트가 살아있어야 가능하고, 영속성 컨텍스트는 기본적으로 데이터베이스 커넥션을 유지한다. 이것 자체가 큰 장점이다.
+
+그런데 이 전략은 너무 오랜시간동안 데이터베이스 커넥션 리소스를 사용하기 때문에, 실시간 트래픽이 중요한 애플리케이션에서는 커넥션이 모자랄 수 있다. 이것은 결국 장애로 이어진다.예를 들어서 컨트롤러에서 외부 API를 호출하면 외부 API 대기 시간 만큼 커넥션 리소스를 반환하지 못하고, 유지해야 한다.
+
+OSIV를 끄면 트랜잭션을 종료할 때 영속성 컨텍스트를 닫고, 데이터베이스 커넥션도 반환한다. 따라서 커넥션 리소스를 낭비하지 않는다.
+OSIV를 끄면 모든 지연로딩을 트랜잭션 안에서 처리해야 한다. 따라서 Controller 지연 로딩 코드를 트랜잭션 안으로 넣어야 하는 단점이 있다. 그리고 view template에서 지연로딩이 동작하지 않기에 결론적으로 **트랜잭션이 끝나기 전에 지연 로딩을 강제로 호출해 두어야 한다.**
+
+### 해결책: **커멘드와 쿼리 분리**
+> 김영환님의 말
+> "고객 서비스의 실시간 API는 OSIV를 끄고, ADMIN 처럼 커넥션을 많이 사용하지 않는 곳에서는 OSIV를 켠다."
+실무에서 OSIV를 끈 상태로 복잡성을 관리하는 좋은 방법이 있다. 바로 Command와 Query를 분리하는것이다.
+
+보통 비즈니스 로직은 특정 엔티티 몇게를 등록하거나 수정하는 것이므로 성능이 크게 문제가 되지 않는다. 그런데 복잡한 화면을 출력하기 위한 쿼리는 화면에 맞추어 성능을 최적화 하는 것이 중요하다. 하지만 그 복잡성에 비해 핵심 비즈니스에 큰 영향을 주는 것은 아니다. 그래서 크고 복잡한 애플리케이션을 개발한다면, 이 둘의 관심사를 명확하게 분리하는 선택은 유지보수 관점에서 충분히 의미 있다.
+
+- 분리 방법
+    - `OrderService`
+        - 핵심 비즈니스 로직
+    - `OrderQueryService`
+        - 화면이나 API에 맞춘 서비스 (주로 읽기 전용 트랜잭션 사용)
+        
+    - 보통 서비스 계층에서 트랜잭션을 유지한다.
+    - 두 서비스 모두 트랜잭션을 유지하면서 지연 로딩을 사용할 수있다.
+
+## **[5] 추가적으로 공부할 거리**
+- `Spring Data JPA`
+- `Querydsl`

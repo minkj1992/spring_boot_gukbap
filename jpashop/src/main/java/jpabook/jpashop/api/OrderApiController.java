@@ -2,9 +2,7 @@ package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderItem;
-import jpabook.jpashop.dto.OrderDto;
-import jpabook.jpashop.dto.OrderListResponse;
-import jpabook.jpashop.dto.OrderQueryDto;
+import jpabook.jpashop.dto.*;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.query.OrderQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -84,11 +82,27 @@ public class OrderApiController {
     }
 
     /**
-     * V5: JPA에서 DTO 직접 조회
+     * V5: JPA에서 DTO 직접 조회 + MAP을 통한 쿼리 최적
      */
     @GetMapping("/api/v5/orders")
     public OrderListResponse ordersV5() {
         return new OrderListResponse(orderQueryRepository.findAllByDto_optimization());
     }
 
+    /**
+     * V6:
+     */
+    @GetMapping("/api/v6/orders")
+    public OrderListResponse ordersV6() {
+        List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+        return new OrderListResponse(
+                flats.stream()
+                        .collect(groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                                mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())))
+                        .entrySet()
+                        .stream()
+                        .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(), e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+                        .collect(toList())
+        );
+    }
 }

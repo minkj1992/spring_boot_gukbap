@@ -1,5 +1,6 @@
 package jpabook.jpashop.repository.query;
 
+import jpabook.jpashop.dto.OrderFlatDto;
 import jpabook.jpashop.dto.OrderItemDto;
 import jpabook.jpashop.dto.OrderItemQueryDto;
 import jpabook.jpashop.dto.OrderQueryDto;
@@ -62,6 +63,9 @@ public class OrderQueryRepository {
     }
 
 
+    /**
+     * for V5
+     */
     public List<OrderQueryDto> findAllByDto_optimization() {
         List<OrderQueryDto> result = findOrders();  //xToOne
 
@@ -75,9 +79,10 @@ public class OrderQueryRepository {
 
     private List<Long> toOrderIds(List<OrderQueryDto> result) {
         return result.stream()
-                .map(o->o.getOrderId())
+                .map(o -> o.getOrderId())
                 .collect(toList());
     }
+
 
     private Map<Long, List<OrderItemQueryDto>> findOrderItemMap(List<Long> orderIds) {
         List<OrderItemQueryDto> orderItems = em.createQuery("select new jpabook.jpashop.dto.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
@@ -87,6 +92,20 @@ public class OrderQueryRepository {
                 .setParameter("orderIds", orderIds)
                 .getResultList();
         return orderItems.stream()
-                .collect(groupingBy(o->o.getOrderId()));
+                .collect(groupingBy(o -> o.getOrderId()));
+    }
+
+
+    /**
+     * for V6 : flat version
+     */
+    public List<OrderFlatDto> findAllByDto_flat() {
+        return em.createQuery("select new jpabook.jpashop.dto.OrderFlatDto(o.id, m.name, o.orderDate, o.status, d.address, i.name, oi.orderPrice, oi.count)" +
+                " from Order o" +
+                " join o.member m" +
+                " join o.delivery d" +
+                " join o.orderItems oi" +
+                " join oi.item i", OrderFlatDto.class)
+                .getResultList();
     }
 }
