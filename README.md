@@ -1,14 +1,60 @@
-# JPABook
+# 1. JPABook
 > SpringBoot + JPA + thymeLeaf + H2 DB
 
-## **[1] 설계 원칙**
-### 1. `Loosed Coupling & High Chesion`
+
+<!-- TOC -->
+
+- [1. JPABook](#1-jpabook)
+  - [1.1. **[1] 설계 원칙**](#11-1-%ec%84%a4%ea%b3%84-%ec%9b%90%ec%b9%99)
+    - [1.1.1. `Loosed Coupling & High Chesion`](#111-loosed-coupling--high-chesion)
+    - [1.1.2. `역할에 따른 Domain Model`](#112-%ec%97%ad%ed%95%a0%ec%97%90-%eb%94%b0%eb%a5%b8-domain-model)
+    - [1.1.3. `레이어별 Domain Model`](#113-%eb%a0%88%ec%9d%b4%ec%96%b4%eb%b3%84-domain-model)
+  - [1.2. **[2] 개발과정**](#12-2-%ea%b0%9c%eb%b0%9c%ea%b3%bc%ec%a0%95)
+    - [1.2.1. 세팅](#121-%ec%84%b8%ed%8c%85)
+    - [1.2.2. Domain 개발](#122-domain-%ea%b0%9c%eb%b0%9c)
+    - [1.2.3. Repository / Service 개발](#123-repository--service-%ea%b0%9c%eb%b0%9c)
+    - [1.2.4. 웹 계층 개발](#124-%ec%9b%b9-%ea%b3%84%ec%b8%b5-%ea%b0%9c%eb%b0%9c)
+  - [1.3. API 개발 및 성능 최적화](#13-api-%ea%b0%9c%eb%b0%9c-%eb%b0%8f-%ec%84%b1%eb%8a%a5-%ec%b5%9c%ec%a0%81%ed%99%94)
+    - [1.3.1. postman 설치](#131-postman-%ec%84%a4%ec%b9%98)
+    - [1.3.2. 회원 등록 API](#132-%ed%9a%8c%ec%9b%90-%eb%93%b1%eb%a1%9d-api)
+      - [1.3.2.1. -1. V1](#1321--1-v1)
+      - [1.3.2.2. -2. v2](#1322--2-v2)
+    - [1.3.3. 회원 수정 API](#133-%ed%9a%8c%ec%9b%90-%ec%88%98%ec%a0%95-api)
+    - [1.3.4. 회원 조회 API](#134-%ed%9a%8c%ec%9b%90-%ec%a1%b0%ed%9a%8c-api)
+      - [1.3.4.1. V1](#1341-v1)
+      - [1.3.4.2. V2](#1342-v2)
+    - [1.3.5. 간단한 주문조회 (`OneToOne`, `ManyToOne` 조회)](#135-%ea%b0%84%eb%8b%a8%ed%95%9c-%ec%a3%bc%eb%ac%b8%ec%a1%b0%ed%9a%8c-onetoone-manytoone-%ec%a1%b0%ed%9a%8c)
+      - [1.3.5.1. V1 Entity 반환](#1351-v1-entity-%eb%b0%98%ed%99%98)
+      - [1.3.5.2. V2 DTO 반환](#1352-v2-dto-%eb%b0%98%ed%99%98)
+      - [1.3.5.3. V3 DTO + fetch join 최적화 (엔티티 DTO 변환)](#1353-v3-dto--fetch-join-%ec%b5%9c%ec%a0%81%ed%99%94-%ec%97%94%ed%8b%b0%ed%8b%b0-dto-%eb%b3%80%ed%99%98)
+      - [1.3.5.4. V4 JPA에서 DTO 바로 조회 (DTO 바로 조회)](#1354-v4-jpa%ec%97%90%ec%84%9c-dto-%eb%b0%94%eb%a1%9c-%ec%a1%b0%ed%9a%8c-dto-%eb%b0%94%eb%a1%9c-%ec%a1%b0%ed%9a%8c)
+      - [1.3.5.5. V3 vs V4 (엔티티 조회 후 DTO 변환 vs DTO 바로 조회)](#1355-v3-vs-v4-%ec%97%94%ed%8b%b0%ed%8b%b0-%ec%a1%b0%ed%9a%8c-%ed%9b%84-dto-%eb%b3%80%ed%99%98-vs-dto-%eb%b0%94%eb%a1%9c-%ec%a1%b0%ed%9a%8c)
+    - [1.3.6. 복잡한 주문조회 (`OneToMany`조회)](#136-%eb%b3%b5%ec%9e%a1%ed%95%9c-%ec%a3%bc%eb%ac%b8%ec%a1%b0%ed%9a%8c-onetomany%ec%a1%b0%ed%9a%8c)
+      - [1.3.6.1. V1: 엔티티 직접 노출](#1361-v1-%ec%97%94%ed%8b%b0%ed%8b%b0-%ec%a7%81%ec%a0%91-%eb%85%b8%ec%b6%9c)
+      - [1.3.6.2. V2: 엔티티를 DTO로 변환](#1362-v2-%ec%97%94%ed%8b%b0%ed%8b%b0%eb%a5%bc-dto%eb%a1%9c-%eb%b3%80%ed%99%98)
+      - [1.3.6.3. V3: 엔티티를 DTO로 변환 (fetch join 최적화)](#1363-v3-%ec%97%94%ed%8b%b0%ed%8b%b0%eb%a5%bc-dto%eb%a1%9c-%eb%b3%80%ed%99%98-fetch-join-%ec%b5%9c%ec%a0%81%ed%99%94)
+      - [1.3.6.4. V3.1: 엔티티를 DTO로 변환 - 페이징 한계 처리](#1364-v31-%ec%97%94%ed%8b%b0%ed%8b%b0%eb%a5%bc-dto%eb%a1%9c-%eb%b3%80%ed%99%98---%ed%8e%98%ec%9d%b4%ec%a7%95-%ed%95%9c%ea%b3%84-%ec%b2%98%eb%a6%ac)
+      - [1.3.6.5. V4: JPA에서 DTO 직접 조회](#1365-v4-jpa%ec%97%90%ec%84%9c-dto-%ec%a7%81%ec%a0%91-%ec%a1%b0%ed%9a%8c)
+      - [1.3.6.6. V5: JPA에서 DTO 직접 조회 - 컬렉션 조회 최적화](#1366-v5-jpa%ec%97%90%ec%84%9c-dto-%ec%a7%81%ec%a0%91-%ec%a1%b0%ed%9a%8c---%ec%bb%ac%eb%a0%89%ec%85%98-%ec%a1%b0%ed%9a%8c-%ec%b5%9c%ec%a0%81%ed%99%94)
+      - [1.3.6.7. V6: JPA에서 DTO로 직접 조회, Flat Data 최적화](#1367-v6-jpa%ec%97%90%ec%84%9c-dto%eb%a1%9c-%ec%a7%81%ec%a0%91-%ec%a1%b0%ed%9a%8c-flat-data-%ec%b5%9c%ec%a0%81%ed%99%94)
+  - [1.4. **[3] 조회 최적화 정리**](#14-3-%ec%a1%b0%ed%9a%8c-%ec%b5%9c%ec%a0%81%ed%99%94-%ec%a0%95%eb%a6%ac)
+    - [1.4.1. -1. API 조회](#141--1-api-%ec%a1%b0%ed%9a%8c)
+    - [1.4.2. -2. `조회 최적화 Best Practice`](#142--2-%ec%a1%b0%ed%9a%8c-%ec%b5%9c%ec%a0%81%ed%99%94-best-practice)
+    - [1.4.3. -3. DTO 조회(v4,v5,v6) `Trade-Off`](#143--3-dto-%ec%a1%b0%ed%9a%8cv4v5v6-trade-off)
+  - [1.5. **[4] OSIV**](#15-4-osiv)
+    - [1.5.1. 해결책: **커멘드와 쿼리 분리**](#151-%ed%95%b4%ea%b2%b0%ec%b1%85-%ec%bb%a4%eb%a9%98%eb%93%9c%ec%99%80-%ec%bf%bc%eb%a6%ac-%eb%b6%84%eb%a6%ac)
+  - [1.6. **[5] 추가적으로 공부할 거리**](#16-5-%ec%b6%94%ea%b0%80%ec%a0%81%ec%9c%bc%eb%a1%9c-%ea%b3%b5%eb%b6%80%ed%95%a0-%ea%b1%b0%eb%a6%ac)
+
+<!-- /TOC -->
+
+## 1.1. **[1] 설계 원칙**
+### 1.1.1. `Loosed Coupling & High Chesion`
 1. 모듈간의 연관관계가 interface로 느슨하게 연결되어야 한다.
 2. 어떤 목적을 위해 연관된 기능들이 모여서 구현되고 지나치게 많은 일을 하지 않는다.
 
 이를 구현하기 위해 DDD(Domain Driven Design)의 몇가지 원칙을 적용하겠다.
 
-### 2. `역할에 따른 Domain Model`
+### 1.1.2. `역할에 따른 Domain Model`
 - Domain(Entity, VO)
     - Entity
         - JPA의 @Table과 매핑
@@ -33,7 +79,7 @@
 
 - c.f) DAO/DTO 개념은 `TRANSACTION SCRIPT 패턴` 개념에서 사용하는 용어로 `DDD`개념과는 다른 개념 용어이다.
 
-### 3. `레이어별 Domain Model`
+### 1.1.3. `레이어별 Domain Model`
 1. 우선 Context로 분리
 2. 이후 Context안에 존재하는 Layer별 분리한다.
 3. user_interface -> application -> domain -> infrastructure 순서로 layer가 나뉘며, 상위 레이어는 하위 레이어를 의존한다. (user interface는 모든 하위 레이어를 의존 가능하며, 반대로 infrastructure는 다른 레이어를 의존하면 안된다.)
@@ -55,9 +101,9 @@
         - 외부 통신하는 @Component
         - 영속성 구현 Dao
 
-## **[2] 개발과정**
+## 1.2. **[2] 개발과정**
 
-### 1. 세팅
+### 1.2.1. 세팅
 
 1. 프로젝트 생성
     - start.spring.io
@@ -89,7 +135,7 @@
     - test
         - JAVA object가 JPA를 통해 EntityManager를 거쳐 생성해준 Repository를 거쳐 Getter를 통해 Id를 return한 값과, 제일 처음 시도했던 java object의 getID값과의 차이가 있는지 여부를 확인하는 테스트
 
-### 2. Domain 개발
+### 1.2.2. Domain 개발
 > Entity Constructor는 Protected with Lombok Annotation
 - 도메인 모델과 테이블 설계
     - ![](./img_src/도메인_모델과_테이블_설계.png)
@@ -116,7 +162,7 @@
 
 **컬렉션은 필드에서 초기화 하자.**
 
-### 3. Repository / Service 개발
+### 1.2.3. Repository / Service 개발
 - 애플리케이션 아키텍처
     - ![](./img_src/애플리케이션_아키텍처.png)
 1. MemberRepository 생성
@@ -242,7 +288,7 @@
 - Getter / Setter를 가진 OrderSearch DTO를 생성해주고, 여기에 동적 쿼리에 담길 특성값들을 Set해준다. 이후 Criteria에 값을 넣어주어 Search해준다.
 
 
-### 4. 웹 계층 개발
+### 1.2.4. 웹 계층 개발
 1. home controller 생성
 
 2. segment html
@@ -355,13 +401,13 @@
 - findOrders
 - update Order
 
-## 3. API 개발 및 성능 최적화
+## 1.3. API 개발 및 성능 최적화
 
-### 1.postman 설치
+### 1.3.1. postman 설치
 
-### 2.회원 등록 API
+### 1.3.2. 회원 등록 API
 - `@RestController`를 사용하여 method에게 `@ResponseBody`붙여주지 않아도 알아서 전달할 type 결정해주게 한다.
-#### 2-1. V1
+#### 1.3.2.1. -1. V1
 1. `CreateMemberResponse` 생성
 2. /dto/ 생성
     - `CreateMemberRequest`
@@ -375,7 +421,7 @@
 4. 해결책: API 요청 스펙에 맞추어 별도의 DTO를 파라미터로 받는다.
     - 디렉토리 구조를 어떻게 해야할까?
 
-#### 2-2. v2
+#### 1.3.2.2. -2. v2
 - `CreateMemberRequest`를 `Member` 대신에 `@RequestBody`와 매핑한다.
 - **엔티티와 프레젠테이션 계층을 위한 로직을 분리한다.**
     - **엔티티를 API스펙에 노출하면 절대 안된다.**
@@ -393,7 +439,7 @@
     - 문제가 생겼던것은 생성자를 spring이 찾지 못하여 생겼던 것이기 때문에, Response는 해당 문제에서 자유로울 수 있다.
 - @TODO:그렇다면 왜 Spring은 디폴트 생성자가 필요할까?
 
-### 3.회원 수정 API
+### 1.3.3. 회원 수정 API
 - `updateMemberV2()`
     - service layer에 `@Transactional update()` 생성
 - update req,rep DTO 생성
@@ -401,8 +447,8 @@
         - @TODO: request는 static으로 생성이유 ( spring이 찾아야 하니까?)
     - `UpdateMemberResponse`
 
-### 4. 회원 조회 API
-#### V1
+### 1.3.4. 회원 조회 API
+#### 1.3.4.1. V1
 > 응답 값으로 엔티티를 직접 외부에 노출
 
 - `membersV1()` 생성
@@ -423,7 +469,7 @@
                 - 참조가 되는 뒷부분을 의미하며, 직렬화를 수행하지 않는다.
 
 
-#### V2
+#### 1.3.4.2. V2
 1. V1 해결방안
     - DTO
         - MemberDTO
@@ -433,7 +479,7 @@
     - @TODO: 이렇게 하면 recursion에 걸리지 않는 이유는? DTO로 문제가 되는 Order를 가져오지 않아서
     - DTO를 사용하면 좋은 추가적인 이유로 **해당 Entity의 원하는 field값만 return 할 수있다.**
 
-### 5. 간단한 주문조회 (`OneToOne`, `ManyToOne` 조회)
+### 1.3.5. 간단한 주문조회 (`OneToOne`, `ManyToOne` 조회)
 > orderItem을 제외하고 Order 목록만 보여준다. 최종적으로 O(1) query가능
 - toOne(OneToOne, ManyToOne)관계만 존재
 - 원하는 Data
@@ -466,7 +512,7 @@
 }
 ```
 
-#### V1 Entity 반환
+#### 1.3.5.1. V1 Entity 반환
 - `ordersV1()` 생성
     - order -> member 와 order ->address LAZY Loading( Proxy 객체 ) -> Jackson이 프록시 객체를 json으로 생성하는 방법을 모른다. (Hibernate5Module을 스프링 빈으로 등록 하여 해결)
 
@@ -486,7 +532,7 @@
 - `양방향 연관관계` 무한 로딩 방지
     - @JsonIgnore
 
-#### V2 DTO 반환
+#### 1.3.5.2. V2 DTO 반환
 - `ordersV2()` 생성
     - `Order` -> `SimpleOrderDto`
 
@@ -563,7 +609,7 @@
 ```
 
 
-#### V3 DTO + fetch join 최적화 (엔티티 DTO 변환)
+#### 1.3.5.3. V3 DTO + fetch join 최적화 (엔티티 DTO 변환)
 
 - 엔티티 fetch join으로 쿼리 1번에 조회
 - 지연 로딩 x (페치 조인으로 member,delivery는 이미 참조)
@@ -597,7 +643,7 @@
 
 - 만약 같은 Member가 다른 Order를 여러번 했다면, member query는 해당 영속성 컨텍스트 sql query 캐시에 존재하므로 1번만 검색할 것이다.
 
-#### V4 JPA에서 DTO 바로 조회 (DTO 바로 조회)
+#### 1.3.5.4. V4 JPA에서 DTO 바로 조회 (DTO 바로 조회)
 - 장점
     - select 절에서 원하는 데이터 직접 조회 (원하는 값 선택 조회)
     - 미비하긴 하지만, 애플리케이션 네트워크 용량 최적화
@@ -623,7 +669,7 @@
             on order0_.delivery_id=delivery2_.delivery_id
 ```
 
-#### V3 vs V4 (엔티티 조회 후 DTO 변환 vs DTO 바로 조회)
+#### 1.3.5.5. V3 vs V4 (엔티티 조회 후 DTO 변환 vs DTO 바로 조회)
 - V3
     - 리포지토리 재사용성 증가
     - 개발 단순화
@@ -632,7 +678,7 @@
     - 미비하지만 네트워크 최적화 (불필요한 select 돌아가지 않으니)    
 
 
-### 6. 복잡한 주문조회 (`OneToMany`조회)
+### 1.3.6. 복잡한 주문조회 (`OneToMany`조회)
 > Simple Order API + Order기준으로 Collection 검색 (`OrderItem`, `Item`)
 
 - 원하는 Data
@@ -755,7 +801,7 @@
 }
 ```
 
-#### V1: 엔티티 직접 노출
+#### 1.3.6.1. V1: 엔티티 직접 노출
 
 
 - Order field들 중, 양방향으로 order와 관계가지는 Entity들 `@JsonIgnore` 설정
@@ -993,14 +1039,14 @@
     - item
         - N번(orderItem 조회 수 만큼)
 
-#### V2: 엔티티를 DTO로 변환
+#### 1.3.6.2. V2: 엔티티를 DTO로 변환
 - `OrderItemDto` 생성
 - `OrderDto` 생성
 - `OrderListResponse ordersV2()` 생성
     - `OrderApiController` 클래스 안에
 
 
-#### V3: 엔티티를 DTO로 변환 (fetch join 최적화)
+#### 1.3.6.3. V3: 엔티티를 DTO로 변환 (fetch join 최적화)
 - `orderV3()`
 - Repository에 `findAllWithItem()` 추가
 ```java
@@ -1086,7 +1132,7 @@
 
 ![](./img_src/before_distinct_order.png)
 
-#### V3.1: 엔티티를 DTO로 변환 - 페이징 한계 처리
+#### 1.3.6.4. V3.1: 엔티티를 DTO로 변환 - 페이징 한계 처리
 > 1+N+N -> 1+1+1
 
 1. toOne 관계는 fetch join + offset,limit 전달
@@ -1121,7 +1167,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
       "defaultValue": 15
 ```
 
-#### V4: JPA에서 DTO 직접 조회
+#### 1.3.6.5. V4: JPA에서 DTO 직접 조회
 - `ordersV4()`
 - `OrderQueryRepository`
 - `OrderQueryDto`
@@ -1176,7 +1222,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
         - ToOne 관계는 join 해도 데이터 row 증가 하지 않는다.
     - row 수가 증가하지 않는 ToOne 관계는 조인으로 최적화 하기 쉬우므로 한번에 조회하고, ToMany 관계는 최적화 하기 어려우므로 `findOrderItems()` 같은 별도의 메서드로 조회한다.
 
-#### V5: JPA에서 DTO 직접 조회 - 컬렉션 조회 최적화
+#### 1.3.6.6. V5: JPA에서 DTO 직접 조회 - 컬렉션 조회 최적화
 > OrderItem을 찾기위해 Order당 OrderItem 조회 O(n x m)  ----> 캐싱을 사용하여 O(n)로 전환
 - 핵심 method
 ```java
@@ -1230,7 +1276,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
             ? , ? , ? , ? , ? , ? , ? , ? , ? , ?
         )
 ```
-#### V6: JPA에서 DTO로 직접 조회, Flat Data 최적화
+#### 1.3.6.7. V6: JPA에서 DTO로 직접 조회, Flat Data 최적화
 
 - 한번의 쿼리로 최적화
 ```sql
@@ -1265,8 +1311,8 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
     - 애플리케이션 오버헤드 크다.
     - 페이징 불가능
 
-## **[3] 조회 최적화 정리**
-### 3-1. API 조회
+## 1.4. **[3] 조회 최적화 정리**
+### 1.4.1. -1. API 조회
 - API 조회 요청시 (2)
     1. 엔티티 조회 (코드 단순화, 성능최적화 자유도 상대적으로 떨어짐)
         - V1: 엔티티를 직접 조회 후 반환
@@ -1280,7 +1326,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
         - V4: JPA에서 DTO 직접 조회
         - V5: 컬렉션 조회 최적화 ( MAP사용 )
         - V6: flat 데이터 최적화
-### 3-2. `조회 최적화 Best Practice`
+### 1.4.2. -2. `조회 최적화 Best Practice`
 - `조회 최적화 Best Practice`
     1. `엔티티 조회` 우선
         - 1-1. `fetch join`을 통한 쿼리 수 최적화
@@ -1290,7 +1336,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
     2. (여전히 문제 발생 시)`DTO 조회`
     3. (여전히 문제 발생 시)`NativeSQL` / `JDBCTemplate`
 
-### 3-3. DTO 조회(v4,v5,v6) `Trade-Off`
+### 1.4.3. -3. DTO 조회(v4,v5,v6) `Trade-Off`
 - DTO 조회(v4,v5,v6) `Trade-Off`
     - V4
         - 코드 단순
@@ -1309,7 +1355,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
         - 중복 전송량 증가하여 V5와의 성능차이 미비
 
 
-## **[4] OSIV**
+## 1.5. **[4] OSIV**
 > 이럴수가 ...
 - 실무에서는 OSIV를 off 해야 한다.
     - connection pool에 db connect이 영속성 유지 기간동안 살아있어, 말라버릴 수 있다.
@@ -1324,7 +1370,7 @@ OSIV 전략은 트랜잭션 시작처럼 최초 데이터베이스 커넥션 시
 OSIV를 끄면 트랜잭션을 종료할 때 영속성 컨텍스트를 닫고, 데이터베이스 커넥션도 반환한다. 따라서 커넥션 리소스를 낭비하지 않는다.
 OSIV를 끄면 모든 지연로딩을 트랜잭션 안에서 처리해야 한다. 따라서 Controller 지연 로딩 코드를 트랜잭션 안으로 넣어야 하는 단점이 있다. 그리고 view template에서 지연로딩이 동작하지 않기에 결론적으로 **트랜잭션이 끝나기 전에 지연 로딩을 강제로 호출해 두어야 한다.**
 
-### 해결책: **커멘드와 쿼리 분리**
+### 1.5.1. 해결책: **커멘드와 쿼리 분리**
 > 김영환님의 말
 > "고객 서비스의 실시간 API는 OSIV를 끄고, ADMIN 처럼 커넥션을 많이 사용하지 않는 곳에서는 OSIV를 켠다."
 실무에서 OSIV를 끈 상태로 복잡성을 관리하는 좋은 방법이 있다. 바로 Command와 Query를 분리하는것이다.
@@ -1340,6 +1386,6 @@ OSIV를 끄면 모든 지연로딩을 트랜잭션 안에서 처리해야 한다
     - 보통 서비스 계층에서 트랜잭션을 유지한다.
     - 두 서비스 모두 트랜잭션을 유지하면서 지연 로딩을 사용할 수있다.
 
-## **[5] 추가적으로 공부할 거리**
+## 1.6. **[5] 추가적으로 공부할 거리**
 - `Spring Data JPA`
 - `Querydsl`
