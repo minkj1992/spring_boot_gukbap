@@ -1,9 +1,10 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/jpashop  # h2와 맞춰준다.
+    url: jdbc:h2:mem:testdb
     username: sa
     password:
     driver-class-name: org.h2.Driver
+
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
