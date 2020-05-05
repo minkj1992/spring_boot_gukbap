@@ -6,7 +6,7 @@
 
 - [1. JPABook](#1-jpabook)
   - [1.1. **[1] 설계 원칙**](#11-1-%ec%84%a4%ea%b3%84-%ec%9b%90%ec%b9%99)
-    - [1.1.1. `Loosed Coupling & High Chesion`](#111-loosed-coupling--high-chesion)
+    - [1.1.1. `Loosed Coupling & High Cohesion`](#111-loosed-coupling--high-cohesion)
     - [1.1.2. `역할에 따른 Domain Model`](#112-%ec%97%ad%ed%95%a0%ec%97%90-%eb%94%b0%eb%a5%b8-domain-model)
     - [1.1.3. `레이어별 Domain Model`](#113-%eb%a0%88%ec%9d%b4%ec%96%b4%eb%b3%84-domain-model)
   - [1.2. **[2] 개발과정**](#12-2-%ea%b0%9c%eb%b0%9c%ea%b3%bc%ec%a0%95)
@@ -48,7 +48,7 @@
 <!-- /TOC -->
 
 ## 1.1. **[1] 설계 원칙**
-### 1.1.1. `Loosed Coupling & High Chesion`
+### 1.1.1. `Loosed Coupling & High Cohesion`
 1. 모듈간의 연관관계가 interface로 느슨하게 연결되어야 한다.
 2. 어떤 목적을 위해 연관된 기능들이 모여서 구현되고 지나치게 많은 일을 하지 않는다.
 
