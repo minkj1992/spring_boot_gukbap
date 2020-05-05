@@ -9,13 +9,12 @@ import lombok.Setter;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-
 @Entity
-@DiscriminatorValue("M")
-@Getter @Setter
+@DiscriminatorValue("A")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Movie extends Item {
+@Getter @Setter
+public class SogogiGukbap extends Item{
 
-    private String director;
-    private String actor;
+    private String chef;
+    private String brand;
 }

@@ -9,12 +9,13 @@ import lombok.Setter;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-@Entity
-@DiscriminatorValue("A")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter @Setter
-public class Album extends Item{
 
-    private String artist;
-    private String etc;
+@Entity
+@DiscriminatorValue("M")
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class DwaejiGukbap extends Item {
+
+    private String chef;
+    private String brand;
 }
