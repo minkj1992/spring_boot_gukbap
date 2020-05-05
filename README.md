@@ -1,10 +1,10 @@
-# 1. JPABook
+# 1. JPASundaegukbap
 > SpringBoot + JPA + thymeLeaf + H2 DB
 
 
 <!-- TOC -->
 
-- [1. JPABook](#1-jpabook)
+- [1. JPASundaegukbap](#1-jpasundaegukbap)
   - [1.1. **[1] 설계 원칙**](#11-1-%ec%84%a4%ea%b3%84-%ec%9b%90%ec%b9%99)
     - [1.1.1. `Loosed Coupling & High Cohesion`](#111-loosed-coupling--high-cohesion)
     - [1.1.2. `역할에 따른 Domain Model`](#112-%ec%97%ad%ed%95%a0%ec%97%90-%eb%94%b0%eb%a5%b8-domain-model)
@@ -46,6 +46,8 @@
   - [1.6. **[5] 추가적으로 공부할 거리**](#16-5-%ec%b6%94%ea%b0%80%ec%a0%81%ec%9c%bc%eb%a1%9c-%ea%b3%b5%eb%b6%80%ed%95%a0-%ea%b1%b0%eb%a6%ac)
 
 <!-- /TOC -->
+
+![](./img_src/gukbap.png)
 
 ## 1.1. **[1] 설계 원칙**
 ### 1.1.1. `Loosed Coupling & High Cohesion`
@@ -103,6 +105,8 @@
 
 ## 1.2. **[2] 개발과정**
 
+
+
 ### 1.2.1. 세팅
 
 1. 프로젝트 생성
@@ -137,12 +141,7 @@
 
 ### 1.2.2. Domain 개발
 > Entity Constructor는 Protected with Lombok Annotation
-- 도메인 모델과 테이블 설계
-    - ![](./img_src/도메인_모델과_테이블_설계.png)
-- 회원 엔티티 분석
-    - ![](./img_src/회원_엔티티_분석.png)
-- 회원 테이블 분석
-    - ![](./img_src/회원_테이블_분석.png)
+
 1. Member Entity 생성
     - 회원
 2. Order ENtity 생성
@@ -152,9 +151,9 @@
     - 상품과 주문서의 관계를 가진 Entity
 4. Item Entity 생성
     - Child Entity 생성
-        - Album 
-        - Book
-        - Movie
+        - SogogiGukbap  
+        - Sundaegukbap
+        - DwaejiGukbap
 5. Delivery Entity 생성
     - DeliveryStatus VO 생성
 6. Address VO생성
@@ -209,10 +208,10 @@
                ```
                 - SQL상에서도 Update Query만 생성된다.
     
-        - `Caused by: org.hibernate.AnnotationException: Illegal attempt to map a non collection as a @OneToMany, @ManyToMany or @CollectionOfElements: jpabook.jpashop.domain.Category.parent` 에러 발생
+        - `Caused by: org.hibernate.AnnotationException: Illegal attempt to map a non collection as a @OneToMany, @ManyToMany or @CollectionOfElements: jpaSundaegukbap.jpashop.domain.Category.parent` 에러 발생
             - `@ManyToOne(fetch = FetchType.LAZY)`로 Parent를 바꿔주었다.
-        - ` Invocation of init method failed; nested exception is org.hibernate.AnnotationException: No identifier specified for entity: jpabook.jpashop.domain.item.Movie`
-            - `public class Movie extends Item` extend를 빼먹었었다.
+        - ` Invocation of init method failed; nested exception is org.hibernate.AnnotationException: No identifier specified for entity: jpaSundaegukbap.jpashop.domain.item.DwaejiGukbap`
+            - `public class DwaejiGukbap extends Item` extend를 빼먹었었다.
 
         - `java.lang.Exception: Test class should have exactly one public zero-argument constructor`, 테스트 환경에서는 `@RequiredArgsConstructor`를 통한 injection이 통하지 않는다. 즉 @Autowired 써주어야 한다.
     
@@ -349,7 +348,7 @@
     - `<td th:text="${member.address?.zipcode}"></td>`
         - 타임리프에서 `?`를 사용하면 null은 무시해서 렌더링 해준다. 매우 편리한 기능
 
-9. BookForm (상품 form) 클래스 생성
+9. SundaegukbapForm (상품 form) 클래스 생성
 - @TODO: `ID`를 폼에서 처리할 때는 오류 체크 안해줘도 될까??
 
 10. ItemController
@@ -358,7 +357,7 @@
 - `create`
     - validate 검증 -> service로 위임
     - 1차적인 에러 검증, positive, @NOtEmpty
-    - 1차적인 검증이 완료된다면, book 객체를 생성한다. 이때 id값은 자동으로 처리된다.
+    - 1차적인 검증이 완료된다면, Sundaegukbap 객체를 생성한다. 이때 id값은 자동으로 처리된다.
     - **id 필드가 자동으로 생성된다면 form객체에 id 필드를 생성해줄 필요가있을까??**
         - `<tr th:each="item : ${items}"><td th:text="${item.id}"></td>` 처럼 view 코드에서 item에 접근하기 위해서는 id 값을 저장하고 있어야 한다. 그런데 itemForm에서 id값이 필요한게 아니라 item 엔티티에서 필요한 것이니 왠지 form 객체에서 item 필드를 Member처럼 없애도 될 것 같다.
 - `items/createItemForm.html`
@@ -427,7 +426,7 @@
     - **엔티티를 API스펙에 노출하면 절대 안된다.**
 - 엔티티가 변해도 API 스펙이 변하지 않는다.
 ```
-    Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of `jpabook.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `jpabook.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator)
+    Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of `jpaSundaegukbap.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator); nested exception is com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot construct instance of `jpaSundaegukbap.jpashop.dto.CreateMemberRequest` (although at least one Creator exists): cannot deserialize from Object value (no delegate- or property-based Creator)
     at [Source: (PushbackInputStream); line: 2, column: 2]]
 ```
 - **RequestBody 생성자를 찾지 못한 문제**
@@ -459,7 +458,7 @@
     2. `Collection`을 반환하면 배열로 전달되어서 JSON을 유연하게 사용하기 어렵다.
         - `[ ]`타입으로 api 스펙이 정의된다면, count와 같은 값을 추가하기 
     3. `Infinite recursion`
-        - `org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Infinite recursion (StackOverflowError) (through reference chain: jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpabook.jpashop.domain.Order["member"]->jpabook.jpashop.domain.Member["orders"]`
+        - `org.springframework.http.converter.HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError); nested exception is com.fasterxml.jackson.databind.JsonMappingException: Infinite recursion (StackOverflowError) (through reference chain: jpaSundaegukbap.jpashop.domain.Order["member"]->jpaSundaegukbap.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpaSundaegukbap.jpashop.domain.Order["member"]->jpaSundaegukbap.jpashop.domain.Member["orders"]->org.hibernate.collection.internal.PersistentBag[0]->jpaSundaegukbap.jpashop.domain.Order["member"]->jpaSundaegukbap.jpashop.domain.Member["orders"]`
         - Member 가 Order가 `양방향 mapping` 되었다면 Converter가 JSON화 시켜줄때 무한히 끌어서 전달한다.
         - 무식한 해결방법(json ignore)
             - @JsonManagedReference
@@ -701,7 +700,7 @@
                     "id": 6,
                     "item": {
                         "id": 2,
-                        "name": "JPA1 BOOK",
+                        "name": "JPA1 Sundaegukbap",
                         "price": 10000,
                         "stockQuantity": 99,
                         "categories": [],
@@ -716,7 +715,7 @@
                     "id": 7,
                     "item": {
                         "id": 3,
-                        "name": "JPA2 BOOK",
+                        "name": "JPA2 Sundaegukbap",
                         "price": 20000,
                         "stockQuantity": 98,
                         "categories": [],
@@ -757,7 +756,7 @@
                     "id": 13,
                     "item": {
                         "id": 9,
-                        "name": "SPRING1 BOOK",
+                        "name": "SPRING1 Sundaegukbap",
                         "price": 20000,
                         "stockQuantity": 197,
                         "categories": [],
@@ -772,7 +771,7 @@
                     "id": 14,
                     "item": {
                         "id": 10,
-                        "name": "SPRING2 BOOK",
+                        "name": "SPRING2 Sundaegukbap",
                         "price": 40000,
                         "stockQuantity": 296,
                         "categories": [],
@@ -1195,7 +1194,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
      * xToOne 관계 조회
      */
     private List<OrderQueryDto> findOrders() {
-        return em.createQuery("select new jpabook.jpashop.dto.OrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
+        return em.createQuery("select new jpaSundaegukbap.jpashop.dto.OrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address)" +
                 " from Order o" +
                 " join o.member m" +
                 " join o.delivery d", OrderQueryDto.class)
@@ -1206,7 +1205,7 @@ select item0_.item_id as item_id2_3_0_, item0_.name as name3_3_0_, item0_.price 
      * xToMany 관계 조회
      */
     private List<OrderItemQueryDto> findOrderItems(Long orderId) {
-        return em.createQuery("select new jpabook.jpashop.dto.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+        return em.createQuery("select new jpaSundaegukbap.jpashop.dto.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
                         " from OrderItem oi" +
                         " join oi.item i" +
                         " where oi.order.id = : orderId", OrderItemQueryDto.class)
